@@ -18,6 +18,19 @@ class bbmap():
                 l += len(self.data[key])
         return l
 
+    """
+    def deserialise(self):
+        # main routine that will handle the deserialising.
+        self.deserialised_data = OrderedDict()
+        for key in self.data:
+            try:
+                self.deserialised_data[key] = self.data[key].deserialise()
+            except:
+                self.deserialised_data[key] = self.data[key]
+        return self.deserialised_data
+    """
+                
+
 class main(bbmap):
     def __init__(self):
         super(main, self).__init__()        # initialise the parent class

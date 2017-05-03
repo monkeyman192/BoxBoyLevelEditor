@@ -13,19 +13,28 @@ class BBCompiler():
         self.main_struct = main()
 
         self.file = open(self.file_in, 'rb')
-        BD = io.BufferedReader(self.file)
-        for key in self.main_struct.data:
-            fmt = self.main_struct.data[key]
+        self.BD = io.BufferedReader(self.file)
+        self.recurse_print(self.main_struct)
+        #dsd = self.main_struct.deserialise()
+        #print(dsd)
+        self.file.close()
+
+    def recurse_print(self, obj):
+        for key in obj.data:
+            fmt = obj.data[key]
             try:
                 l = struct.calcsize(fmt)
                 # if the code hasn't broken by this point then the data is just a format for the struct class
-                print("{0}: {1}".format(key, struct.unpack(fmt, BD.read(l))[0]))        # need the [0] as this will always return a tuple
+                print("{0}: {1}".format(key, struct.unpack(fmt, self.BD.read(l))[0]))        # need the [0] as this will always return a tuple
             except:
+                self.recurse_print(fmt)
+                """
                 l = len(fmt)
                 for subkey in fmt.data:
                     sublen = struct.calcsize(fmt.data[subkey])
                     print("{0}: {1}".format(subkey, struct.unpack(fmt.data[subkey], BD.read(sublen))[0]))        # need the [0] as this will always return a tuple
-        self.file.close()
+                """
+            
 
 a = BBCompiler('1-1.bbmap', None)
 
