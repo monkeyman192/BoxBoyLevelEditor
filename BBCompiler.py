@@ -3,6 +3,8 @@
 import struct
 import io
 
+from lxml import etree
+
 from bbmap import main
 
 class BBCompiler():
@@ -12,12 +14,30 @@ class BBCompiler():
 
         self.main_struct = main()
 
+        self.root = etree.Element("Map")
+
         self.file = open(self.file_in, 'rb')
         self.BD = io.BufferedReader(self.file)
-        self.recurse_print(self.main_struct)
+        self.xml_recurse(self.main_struct, self.root)
+        #print(etree.tostring(self.root, pretty_print = True))
+        et = etree.ElementTree(self.root)
+        et.write('data.xml', xml_declaration='<?xml version="1.0" encoding="utf-8"?>', pretty_print=True, encoding='utf-8')
+        #self.recurse_print(self.main_struct)
         #dsd = self.main_struct.deserialise()
         #print(dsd)
         self.file.close()
+
+    def xml_recurse(self, obj, node):
+        # obj is the object we want to recurse over, and node is the current node in the xml etree was want to subelement things to
+        for key in obj.data:
+            fmt = obj.data[key]
+            try:
+                l = struct.calcsize(fmt)
+                # if the code hasn't broken by this point then the data is just a format for the struct class
+                sub_element = etree.SubElement(node, key, value = str(struct.unpack(fmt, self.BD.read(l))[0]))
+            except:
+                sub_element = etree.SubElement(node, key)
+                self.xml_recurse(fmt, sub_element)
 
     def recurse_print(self, obj):
         for key in obj.data:
