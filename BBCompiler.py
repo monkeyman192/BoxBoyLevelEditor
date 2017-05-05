@@ -29,15 +29,25 @@ class BBCompiler():
 
     def xml_recurse(self, obj, node):
         # obj is the object we want to recurse over, and node is the current node in the xml etree was want to subelement things to
+        if obj.name != 'List':
+            obj_node = etree.SubElement(node, obj.name)
+        else:
+            obj_node = node
         for key in obj.data:
             fmt = obj.data[key]
-            try:
-                l = struct.calcsize(fmt)
-                # if the code hasn't broken by this point then the data is just a format for the struct class
-                sub_element = etree.SubElement(node, key, value = str(struct.unpack(fmt, self.BD.read(l))[0]))
-            except:
-                sub_element = etree.SubElement(node, key)
-                self.xml_recurse(fmt, sub_element)
+            if key.endswith('Count'):
+                # in this case, the data entry named '{}Data'.format(key) will be a list that need to be this long
+                length = struct.unpack(fmt, self.BD.read(struct.calcsize(fmt)))[0]
+                obj.data['{}Data'.format(key[:-5])].set_size(length)
+                # we also don't want to convert the count data to xml
+            else:
+                try:
+                    l = struct.calcsize(fmt)
+                    # if the code hasn't broken by this point then the data is just a format for the struct class
+                    sub_element = etree.SubElement(obj_node, key, value = str(struct.unpack(fmt, self.BD.read(l))[0]))
+                except:
+                    sub_element = etree.SubElement(obj_node, key)
+                    self.xml_recurse(fmt, sub_element)
 
     def recurse_print(self, obj):
         for key in obj.data:
@@ -56,6 +66,6 @@ class BBCompiler():
                 """
             
 
-a = BBCompiler('1-1.bbmap', None)
+a = BBCompiler('1-2.bbmap', None)
 
             

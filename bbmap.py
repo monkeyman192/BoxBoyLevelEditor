@@ -17,23 +17,13 @@ class bbmap():
             except:
                 l += len(self.data[key])
         return l
-
-    """
-    def deserialise(self):
-        # main routine that will handle the deserialising.
-        self.deserialised_data = OrderedDict()
-        for key in self.data:
-            try:
-                self.deserialised_data[key] = self.data[key].deserialise()
-            except:
-                self.deserialised_data[key] = self.data[key]
-        return self.deserialised_data
-    """
                 
 
 class main(bbmap):
     def __init__(self):
         super(main, self).__init__()        # initialise the parent class
+
+        self.name = 'MainData'
 
         # actual structure
         self.data['InitialPadding'] = '28s'        # just going to ignore the first 0x1C bytes...
@@ -45,49 +35,11 @@ class main(bbmap):
         self.data['BoxSetNum'] = '<I'
         self.data['CameraHeight'] = '<I'
         self.data['SoundTag'] = '<I'
-        self.data['position0'] = Vector2i()
-        self.data['position1'] = Vector2i()
-        self.data['position2'] = Vector2i()
-        self.data['position3'] = Vector2i()
-        self.data['position4'] = Vector2i()
-        self.data['position5'] = Vector2i()
-        self.data['position6'] = Vector2i()
-        self.data['position7'] = Vector2i()
-        self.data['position8'] = Vector2i()
-        self.data['position9'] = Vector2i()
-        self.data['position10'] = Vector2i()
-        self.data['position11'] = Vector2i()
-        self.data['position12'] = Vector2i()
-        self.data['position13'] = Vector2i()
-        self.data['position14'] = Vector2i()
-        self.data['position15'] = Vector2i()
-        self.data['position16'] = Vector2i()
-        self.data['position17'] = Vector2i()
-        self.data['position18'] = Vector2i()
-        self.data['position19'] = Vector2i()
+        self.data['UnknownPositions'] = List(Vector2i(), 'Position', 20)
         self.data['Unknown3'] = '<I'
         self.data['Unknown4'] = '<I'
         self.data['Unknown5'] = '<I'
-        self.data['UnknownStruct0'] = UnknownStruct()
-        self.data['UnknownStruct1'] = UnknownStruct()
-        self.data['UnknownStruct2'] = UnknownStruct()
-        self.data['UnknownStruct3'] = UnknownStruct()
-        self.data['UnknownStruct4'] = UnknownStruct()
-        self.data['UnknownStruct5'] = UnknownStruct()
-        self.data['UnknownStruct6'] = UnknownStruct()
-        self.data['UnknownStruct7'] = UnknownStruct()
-        self.data['UnknownStruct8'] = UnknownStruct()
-        self.data['UnknownStruct9'] = UnknownStruct()
-        self.data['UnknownStruct10'] = UnknownStruct()
-        self.data['UnknownStruct11'] = UnknownStruct()
-        self.data['UnknownStruct12'] = UnknownStruct()
-        self.data['UnknownStruct13'] = UnknownStruct()
-        self.data['UnknownStruct14'] = UnknownStruct()
-        self.data['UnknownStruct15'] = UnknownStruct()
-        self.data['UnknownStruct16'] = UnknownStruct()
-        self.data['UnknownStruct17'] = UnknownStruct()
-        self.data['UnknownStruct18'] = UnknownStruct()
-        self.data['UnknownStruct19'] = UnknownStruct()
+        self.data['UnknownStruct'] = List(UnknownStruct(), 'Entry', 20)
         self.data['Padding_maybe'] = '32s'
         self.data['AnotherPosition0'] = Vector2i()
         self.data['AnotherPosition1'] = Vector2i()
@@ -98,11 +50,37 @@ class main(bbmap):
         self.data['AnotherPosition6'] = Vector2i()
         self.data['Gimmicks'] = Gimmick()
         
+class List(bbmap):
+    # basically a list wrapper
+    def __init__(self, dtype, sub_name, *size):
+        # size is only specified if the list starts as a pre-defined size
+        super(List, self).__init__()
+
+        self.name = 'List'
+
+        self.sub_name = sub_name
+        
+        self.dtype = dtype
+        if size:
+            self.size = size[0]
+        else:
+            self.size = None
+
+        if self.size != None:
+            for i in range(self.size):
+                self.data['{0}_{1}'.format(self.sub_name, i)] = self.dtype
+
+    def set_size(self, size):
+        self.size = size
+        for i in range(self.size):
+            self.data['{0}_{1}'.format(self.sub_name, i)] = self.dtype
         
 
 class Vector2i(bbmap):
     def __init__(self):
         super(Vector2i, self).__init__()
+
+        self.name = 'Vector2i'
 
         self.data['x'] = '<I'
         self.data['y'] = '<I'
@@ -111,8 +89,11 @@ class Gimmick(bbmap):
     def __init__(self):
         super(Gimmick, self).__init__()
 
-        self.data['count'] = '<I'
-        self.data['Gimmick0'] = GimmickData()
+        self.name = 'Gimmick'
+
+        self.data['GimmickCount'] = '<I'
+        self.data['GimmickData'] = List(GimmickData(), 'Gimmick')
+        """self.data['Gimmick0'] = GimmickData()
         self.data['Gimmick1'] = GimmickData()
         self.data['Gimmick2'] = GimmickData()
         self.data['Gimmick3'] = GimmickData()
@@ -121,11 +102,13 @@ class Gimmick(bbmap):
         self.data['Gimmick6'] = GimmickData()
         self.data['Gimmick7'] = GimmickData()
         self.data['Gimmick8'] = GimmickData()
-        self.data['Gimmick9'] = GimmickData()
+        self.data['Gimmick9'] = GimmickData()"""
 
 class GimmickData(bbmap):
     def __init__(self):
         super(GimmickData, self).__init__()
+
+        self.name = 'GimmickData'
 
         # struct size: 0x30
 
@@ -146,12 +129,16 @@ class FallBlock(bbmap):
     def __init__(self):
         super(FallBlock, self).__init__()
 
+        self.name = 'FallBlock'
+
         self.data['gridCount'] = '<I'
         self.data['grid'] = FallBlockGridData()
 
 class FallBlockGridData(bbmap):
     def __init__(self):
         super(FallBlockGridData, self).__init__()
+
+        self.name = 'FallBlockGridData'
 
         self.data['x'] = '<I'
         self.data['y'] = '<I'
@@ -160,12 +147,16 @@ class Enemies(bbmap):
     def __init__(self):
         super(Enemies, self).__init__()
 
+        self.name = 'Enemies'
+
         self.data['count'] = '<I'
         self.data['Enemies'] = EnemyData()
 
 class EnemyData(bbmap):
     def __init__(self):
         super(EnemyData, self).__init__()
+
+        self.name = 'EnemyData'
 
         # struct size: 0x18
 
@@ -179,8 +170,19 @@ class UnknownStruct(bbmap):
     def __init__(self):
         super(UnknownStruct, self).__init__()
 
+        self.name = 'UnknownStruct'
+
         self.data['Unknown0'] = '<I'
         self.data['Unknown1'] = '<I'
         self.data['Unknown2'] = '<I'
         self.data['Unknown3'] = '<I'
         self.data['Unknown4'] = '<I'
+
+class LandColl(bbmap):
+    def __init__(self):
+        super(LandColl, self).__init__()
+
+        self.name = 'LandColl'
+
+        self.data['width'] = '<I'
+        self.data['height'] = '<I'

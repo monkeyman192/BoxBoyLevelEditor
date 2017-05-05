@@ -1,0 +1,530 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<Map>
+  <MainData>
+    <InitialPadding value="b'XBIN4\x12\x02\x00\xee\x89\x00\x00\xe9\xfd\x00\x00\x01\x00\x00\x00\xdc\x89\x00\x00\x1c\x00\x00\x00'"/>
+    <Magic value="b'XBIN'"/>
+    <Version value="135732"/>
+    <Unknown1 value="35264"/>
+    <Unknown2 value="65001"/>
+    <BoxNum value="1"/>
+    <BoxSetNum value="1"/>
+    <CameraHeight value="8"/>
+    <SoundTag value="0"/>
+    <UnknownPositions>
+      <Position_0>
+        <Vector2i>
+          <x value="188"/>
+          <y value="204"/>
+        </Vector2i>
+      </Position_0>
+      <Position_1>
+        <Vector2i>
+          <x value="224"/>
+          <y value="244"/>
+        </Vector2i>
+      </Position_1>
+      <Position_2>
+        <Vector2i>
+          <x value="264"/>
+          <y value="284"/>
+        </Vector2i>
+      </Position_2>
+      <Position_3>
+        <Vector2i>
+          <x value="304"/>
+          <y value="324"/>
+        </Vector2i>
+      </Position_3>
+      <Position_4>
+        <Vector2i>
+          <x value="344"/>
+          <y value="364"/>
+        </Vector2i>
+      </Position_4>
+      <Position_5>
+        <Vector2i>
+          <x value="384"/>
+          <y value="404"/>
+        </Vector2i>
+      </Position_5>
+      <Position_6>
+        <Vector2i>
+          <x value="424"/>
+          <y value="444"/>
+        </Vector2i>
+      </Position_6>
+      <Position_7>
+        <Vector2i>
+          <x value="464"/>
+          <y value="484"/>
+        </Vector2i>
+      </Position_7>
+      <Position_8>
+        <Vector2i>
+          <x value="504"/>
+          <y value="524"/>
+        </Vector2i>
+      </Position_8>
+      <Position_9>
+        <Vector2i>
+          <x value="544"/>
+          <y value="564"/>
+        </Vector2i>
+      </Position_9>
+      <Position_10>
+        <Vector2i>
+          <x value="584"/>
+          <y value="604"/>
+        </Vector2i>
+      </Position_10>
+      <Position_11>
+        <Vector2i>
+          <x value="608"/>
+          <y value="612"/>
+        </Vector2i>
+      </Position_11>
+      <Position_12>
+        <Vector2i>
+          <x value="616"/>
+          <y value="620"/>
+        </Vector2i>
+      </Position_12>
+      <Position_13>
+        <Vector2i>
+          <x value="624"/>
+          <y value="628"/>
+        </Vector2i>
+      </Position_13>
+      <Position_14>
+        <Vector2i>
+          <x value="632"/>
+          <y value="636"/>
+        </Vector2i>
+      </Position_14>
+      <Position_15>
+        <Vector2i>
+          <x value="660"/>
+          <y value="652"/>
+        </Vector2i>
+      </Position_15>
+      <Position_16>
+        <Vector2i>
+          <x value="644"/>
+          <y value="668"/>
+        </Vector2i>
+      </Position_16>
+      <Position_17>
+        <Vector2i>
+          <x value="676"/>
+          <y value="684"/>
+        </Vector2i>
+      </Position_17>
+      <Position_18>
+        <Vector2i>
+          <x value="692"/>
+          <y value="1176"/>
+        </Vector2i>
+      </Position_18>
+      <Position_19>
+        <Vector2i>
+          <x value="1180"/>
+          <y value="71"/>
+        </Vector2i>
+      </Position_19>
+    </UnknownPositions>
+    <Unknown3 value="15"/>
+    <Unknown4 value="1065"/>
+    <Unknown5 value="1184"/>
+    <UnknownStruct>
+      <Entry_0>
+        <UnknownStruct>
+          <Unknown0 value="72"/>
+          <Unknown1 value="16"/>
+          <Unknown2 value="1"/>
+          <Unknown3 value="1"/>
+          <Unknown4 value="0"/>
+        </UnknownStruct>
+      </Entry_0>
+      <Entry_1>
+        <UnknownStruct>
+          <Unknown0 value="72"/>
+          <Unknown1 value="16"/>
+          <Unknown2 value="1"/>
+          <Unknown3 value="1"/>
+          <Unknown4 value="0"/>
+        </UnknownStruct>
+      </Entry_1>
+      <Entry_2>
+        <UnknownStruct>
+          <Unknown0 value="72"/>
+          <Unknown1 value="16"/>
+          <Unknown2 value="1"/>
+          <Unknown3 value="1"/>
+          <Unknown4 value="0"/>
+        </UnknownStruct>
+      </Entry_2>
+      <Entry_3>
+        <UnknownStruct>
+          <Unknown0 value="72"/>
+          <Unknown1 value="16"/>
+          <Unknown2 value="1"/>
+          <Unknown3 value="1"/>
+          <Unknown4 value="0"/>
+        </UnknownStruct>
+      </Entry_3>
+      <Entry_4>
+        <UnknownStruct>
+          <Unknown0 value="72"/>
+          <Unknown1 value="16"/>
+          <Unknown2 value="1"/>
+          <Unknown3 value="1"/>
+          <Unknown4 value="0"/>
+        </UnknownStruct>
+      </Entry_4>
+      <Entry_5>
+        <UnknownStruct>
+          <Unknown0 value="72"/>
+          <Unknown1 value="16"/>
+          <Unknown2 value="1"/>
+          <Unknown3 value="1"/>
+          <Unknown4 value="0"/>
+        </UnknownStruct>
+      </Entry_5>
+      <Entry_6>
+        <UnknownStruct>
+          <Unknown0 value="72"/>
+          <Unknown1 value="16"/>
+          <Unknown2 value="1"/>
+          <Unknown3 value="1"/>
+          <Unknown4 value="0"/>
+        </UnknownStruct>
+      </Entry_6>
+      <Entry_7>
+        <UnknownStruct>
+          <Unknown0 value="72"/>
+          <Unknown1 value="16"/>
+          <Unknown2 value="1"/>
+          <Unknown3 value="1"/>
+          <Unknown4 value="0"/>
+        </UnknownStruct>
+      </Entry_7>
+      <Entry_8>
+        <UnknownStruct>
+          <Unknown0 value="72"/>
+          <Unknown1 value="16"/>
+          <Unknown2 value="1"/>
+          <Unknown3 value="1"/>
+          <Unknown4 value="0"/>
+        </UnknownStruct>
+      </Entry_8>
+      <Entry_9>
+        <UnknownStruct>
+          <Unknown0 value="72"/>
+          <Unknown1 value="16"/>
+          <Unknown2 value="1"/>
+          <Unknown3 value="1"/>
+          <Unknown4 value="0"/>
+        </UnknownStruct>
+      </Entry_9>
+      <Entry_10>
+        <UnknownStruct>
+          <Unknown0 value="72"/>
+          <Unknown1 value="16"/>
+          <Unknown2 value="1"/>
+          <Unknown3 value="1"/>
+          <Unknown4 value="0"/>
+        </UnknownStruct>
+      </Entry_10>
+      <Entry_11>
+        <UnknownStruct>
+          <Unknown0 value="72"/>
+          <Unknown1 value="16"/>
+          <Unknown2 value="1"/>
+          <Unknown3 value="1"/>
+          <Unknown4 value="0"/>
+        </UnknownStruct>
+      </Entry_11>
+      <Entry_12>
+        <UnknownStruct>
+          <Unknown0 value="72"/>
+          <Unknown1 value="16"/>
+          <Unknown2 value="1"/>
+          <Unknown3 value="1"/>
+          <Unknown4 value="0"/>
+        </UnknownStruct>
+      </Entry_12>
+      <Entry_13>
+        <UnknownStruct>
+          <Unknown0 value="72"/>
+          <Unknown1 value="16"/>
+          <Unknown2 value="1"/>
+          <Unknown3 value="1"/>
+          <Unknown4 value="0"/>
+        </UnknownStruct>
+      </Entry_13>
+      <Entry_14>
+        <UnknownStruct>
+          <Unknown0 value="72"/>
+          <Unknown1 value="16"/>
+          <Unknown2 value="1"/>
+          <Unknown3 value="1"/>
+          <Unknown4 value="0"/>
+        </UnknownStruct>
+      </Entry_14>
+      <Entry_15>
+        <UnknownStruct>
+          <Unknown0 value="72"/>
+          <Unknown1 value="16"/>
+          <Unknown2 value="1"/>
+          <Unknown3 value="1"/>
+          <Unknown4 value="0"/>
+        </UnknownStruct>
+      </Entry_15>
+      <Entry_16>
+        <UnknownStruct>
+          <Unknown0 value="72"/>
+          <Unknown1 value="16"/>
+          <Unknown2 value="1"/>
+          <Unknown3 value="1"/>
+          <Unknown4 value="0"/>
+        </UnknownStruct>
+      </Entry_16>
+      <Entry_17>
+        <UnknownStruct>
+          <Unknown0 value="72"/>
+          <Unknown1 value="16"/>
+          <Unknown2 value="1"/>
+          <Unknown3 value="1"/>
+          <Unknown4 value="0"/>
+        </UnknownStruct>
+      </Entry_17>
+      <Entry_18>
+        <UnknownStruct>
+          <Unknown0 value="72"/>
+          <Unknown1 value="16"/>
+          <Unknown2 value="1"/>
+          <Unknown3 value="1"/>
+          <Unknown4 value="0"/>
+        </UnknownStruct>
+      </Entry_18>
+      <Entry_19>
+        <UnknownStruct>
+          <Unknown0 value="72"/>
+          <Unknown1 value="16"/>
+          <Unknown2 value="1"/>
+          <Unknown3 value="1"/>
+          <Unknown4 value="0"/>
+        </UnknownStruct>
+      </Entry_19>
+    </UnknownStruct>
+    <Padding_maybe value="b'\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00'"/>
+    <AnotherPosition0>
+      <Vector2i>
+        <x value="1065"/>
+        <y value="5444"/>
+      </Vector2i>
+    </AnotherPosition0>
+    <AnotherPosition1>
+      <Vector2i>
+        <x value="1065"/>
+        <y value="9704"/>
+      </Vector2i>
+    </AnotherPosition1>
+    <AnotherPosition2>
+      <Vector2i>
+        <x value="1065"/>
+        <y value="13964"/>
+      </Vector2i>
+    </AnotherPosition2>
+    <AnotherPosition3>
+      <Vector2i>
+        <x value="1065"/>
+        <y value="18224"/>
+      </Vector2i>
+    </AnotherPosition3>
+    <AnotherPosition4>
+      <Vector2i>
+        <x value="1065"/>
+        <y value="22484"/>
+      </Vector2i>
+    </AnotherPosition4>
+    <AnotherPosition5>
+      <Vector2i>
+        <x value="1065"/>
+        <y value="26744"/>
+      </Vector2i>
+    </AnotherPosition5>
+    <AnotherPosition6>
+      <Vector2i>
+        <x value="1065"/>
+        <y value="31004"/>
+      </Vector2i>
+    </AnotherPosition6>
+    <Gimmicks>
+      <Gimmick>
+        <GimmickData>
+          <Gimmick_0>
+            <GimmickData>
+              <wuid value="9"/>
+              <kind value="0"/>
+              <x value="368"/>
+              <y value="96"/>
+              <group value="0"/>
+              <appearance value="0"/>
+              <param0 value="0"/>
+              <param1 value="0"/>
+              <param2 value="1"/>
+              <param3 value="23068768"/>
+              <param4 value="0"/>
+              <param5 value="4294967295"/>
+            </GimmickData>
+          </Gimmick_0>
+          <Gimmick_1>
+            <GimmickData>
+              <wuid value="18"/>
+              <kind value="0"/>
+              <x value="400"/>
+              <y value="288"/>
+              <group value="0"/>
+              <appearance value="0"/>
+              <param0 value="999"/>
+              <param1 value="0"/>
+              <param2 value="1"/>
+              <param3 value="141557840"/>
+              <param4 value="2097184"/>
+              <param5 value="4294967295"/>
+            </GimmickData>
+          </Gimmick_1>
+          <Gimmick_2>
+            <GimmickData>
+              <wuid value="82"/>
+              <kind value="15"/>
+              <x value="592"/>
+              <y value="288"/>
+              <group value="0"/>
+              <appearance value="0"/>
+              <param0 value="1"/>
+              <param1 value="35651904"/>
+              <param2 value="15728864"/>
+              <param3 value="0"/>
+              <param4 value="0"/>
+              <param5 value="0"/>
+            </GimmickData>
+          </Gimmick_2>
+          <Gimmick_3>
+            <GimmickData>
+              <wuid value="87"/>
+              <kind value="4"/>
+              <x value="1632"/>
+              <y value="208"/>
+              <group value="0"/>
+              <appearance value="0"/>
+              <param0 value="0"/>
+              <param1 value="0"/>
+              <param2 value="0"/>
+              <param3 value="0"/>
+              <param4 value="0"/>
+              <param5 value="0"/>
+            </GimmickData>
+          </Gimmick_3>
+          <Gimmick_4>
+            <GimmickData>
+              <wuid value="88"/>
+              <kind value="2"/>
+              <x value="1872"/>
+              <y value="96"/>
+              <group value="0"/>
+              <appearance value="0"/>
+              <param0 value="0"/>
+              <param1 value="1"/>
+              <param2 value="0"/>
+              <param3 value="0"/>
+              <param4 value="0"/>
+              <param5 value="0"/>
+            </GimmickData>
+          </Gimmick_4>
+          <Gimmick_5>
+            <GimmickData>
+              <wuid value="89"/>
+              <kind value="15"/>
+              <x value="1456"/>
+              <y value="288"/>
+              <group value="0"/>
+              <appearance value="0"/>
+              <param0 value="2"/>
+              <param1 value="97517888"/>
+              <param2 value="10485984"/>
+              <param3 value="0"/>
+              <param4 value="0"/>
+              <param5 value="0"/>
+            </GimmickData>
+          </Gimmick_5>
+          <Gimmick_6>
+            <GimmickData>
+              <wuid value="90"/>
+              <kind value="15"/>
+              <x value="1168"/>
+              <y value="288"/>
+              <group value="0"/>
+              <appearance value="0"/>
+              <param0 value="11"/>
+              <param1 value="72352064"/>
+              <param2 value="16777472"/>
+              <param3 value="0"/>
+              <param4 value="0"/>
+              <param5 value="0"/>
+            </GimmickData>
+          </Gimmick_6>
+          <Gimmick_7>
+            <GimmickData>
+              <wuid value="91"/>
+              <kind value="0"/>
+              <x value="800"/>
+              <y value="96"/>
+              <group value="0"/>
+              <appearance value="0"/>
+              <param0 value="1"/>
+              <param1 value="1"/>
+              <param2 value="1"/>
+              <param3 value="51380528"/>
+              <param4 value="2097360"/>
+              <param5 value="4294967295"/>
+            </GimmickData>
+          </Gimmick_7>
+          <Gimmick_8>
+            <GimmickData>
+              <wuid value="92"/>
+              <kind value="0"/>
+              <x value="1120"/>
+              <y value="96"/>
+              <group value="0"/>
+              <appearance value="0"/>
+              <param0 value="2"/>
+              <param1 value="1"/>
+              <param2 value="1"/>
+              <param3 value="72352048"/>
+              <param4 value="2097360"/>
+              <param5 value="4294967295"/>
+            </GimmickData>
+          </Gimmick_8>
+          <Gimmick_9>
+            <GimmickData>
+              <wuid value="93"/>
+              <kind value="0"/>
+              <x value="1392"/>
+              <y value="96"/>
+              <group value="0"/>
+              <appearance value="0"/>
+              <param0 value="3"/>
+              <param1 value="1"/>
+              <param2 value="1"/>
+              <param3 value="90177840"/>
+              <param4 value="2097360"/>
+              <param5 value="4294967295"/>
+            </GimmickData>
+          </Gimmick_9>
+        </GimmickData>
+      </Gimmick>
+    </Gimmicks>
+  </MainData>
+</Map>
