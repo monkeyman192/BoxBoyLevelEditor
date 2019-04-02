@@ -29,9 +29,13 @@ class BBCompiler():
 
     def xml_recurse(self, obj, node):
         # obj is the object we want to recurse over, and node is the current node in the xml etree was want to subelement things to
-        if obj.name != 'List':
-            obj_node = etree.SubElement(node, obj.name)
-        else:
+        print(obj)
+        try:
+            if obj.name != 'List':
+                obj_node = etree.SubElement(node, obj.name)
+            else:
+                obj_node = node
+        except:
             obj_node = node
         for key in obj.data:
             fmt = obj.data[key]
@@ -66,6 +70,6 @@ class BBCompiler():
                 """
             
 
-a = BBCompiler('1-2.bbmap', None)
+a = BBCompiler('1-1.bbmap', None)
 
             
