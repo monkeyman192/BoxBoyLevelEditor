@@ -37,6 +37,9 @@ class MapCanvas(Toplevel):
         self.param4_name = StringVar(value='param4')
         self.param5_name = StringVar(value='param5')
 
+        self.gimmick_wuid = IntVar()
+        self.gimmick_group = IntVar()
+
         # Values for the param entries.
         # There are 2 values for each in case the value is packed like '<hh'
         self.param0_value_1 = IntVar()
@@ -224,53 +227,63 @@ class MapCanvas(Toplevel):
         gimmick_edit_frame.grid(column=0, row=1)
 
         Label(gimmick_edit_frame,
-              textvariable=self.param0_name).grid(column=0, row=0)
+              text='wuid').grid(column=0, row=0, sticky='w')
+        Entry(gimmick_edit_frame, width=5,
+              textvariable=self.gimmick_wuid).grid(column=1, row=0, sticky='w')
+        Label(gimmick_edit_frame,
+              text='group').grid(column=0, row=1, sticky='w')
+        Entry(gimmick_edit_frame, width=5,
+              textvariable=self.gimmick_group).grid(column=1, row=1,
+                                                    sticky='w')
+
+        Label(gimmick_edit_frame,
+              textvariable=self.param0_name).grid(column=0, row=2)
         self.param0_entry1 = Entry(gimmick_edit_frame, width=5,
                                    textvariable=self.param0_value_1)
-        self.param0_entry1.grid(column=1, row=0)
+        self.param0_entry1.grid(column=1, row=2)
         self.param0_entry2 = Entry(gimmick_edit_frame, width=5,
                                    textvariable=self.param0_value_2)
-        self.param0_entry2.grid(column=2, row=0)
+        self.param0_entry2.grid(column=2, row=2)
         Label(gimmick_edit_frame,
-              textvariable=self.param1_name).grid(column=0, row=1)
+              textvariable=self.param1_name).grid(column=0, row=3)
         self.param1_entry1 = Entry(gimmick_edit_frame, width=5,
                                    textvariable=self.param1_value_1)
-        self.param1_entry1.grid(column=1, row=1)
+        self.param1_entry1.grid(column=1, row=3)
         self.param1_entry2 = Entry(gimmick_edit_frame, width=5,
                                    textvariable=self.param1_value_2)
-        self.param1_entry2.grid(column=2, row=1)
+        self.param1_entry2.grid(column=2, row=3)
         Label(gimmick_edit_frame,
-              textvariable=self.param2_name).grid(column=0, row=2)
+              textvariable=self.param2_name).grid(column=0, row=4)
         self.param2_entry1 = Entry(gimmick_edit_frame, width=5,
                                    textvariable=self.param2_value_1)
-        self.param2_entry1.grid(column=1, row=2)
+        self.param2_entry1.grid(column=1, row=4)
         self.param2_entry2 = Entry(gimmick_edit_frame, width=5,
                                    textvariable=self.param2_value_2)
-        self.param2_entry2.grid(column=2, row=2)
+        self.param2_entry2.grid(column=2, row=4)
         Label(gimmick_edit_frame,
-              textvariable=self.param3_name).grid(column=0, row=3)
+              textvariable=self.param3_name).grid(column=0, row=5)
         self.param3_entry1 = Entry(gimmick_edit_frame, width=5,
                                    textvariable=self.param3_value_1)
-        self.param3_entry1.grid(column=1, row=3)
+        self.param3_entry1.grid(column=1, row=5)
         self.param3_entry2 = Entry(gimmick_edit_frame, width=5,
                                    textvariable=self.param3_value_2)
-        self.param3_entry2.grid(column=2, row=3)
+        self.param3_entry2.grid(column=2, row=5)
         Label(gimmick_edit_frame,
-              textvariable=self.param4_name).grid(column=0, row=4)
+              textvariable=self.param4_name).grid(column=0, row=6)
         self.param4_entry1 = Entry(gimmick_edit_frame, width=5,
                                    textvariable=self.param4_value_1)
-        self.param4_entry1.grid(column=1, row=4)
+        self.param4_entry1.grid(column=1, row=6)
         self.param4_entry2 = Entry(gimmick_edit_frame, width=5,
                                    textvariable=self.param4_value_2)
-        self.param4_entry2.grid(column=2, row=4)
+        self.param4_entry2.grid(column=2, row=6)
         Label(gimmick_edit_frame,
-              textvariable=self.param5_name).grid(column=0, row=5)
+              textvariable=self.param5_name).grid(column=0, row=7)
         self.param5_entry1 = Entry(gimmick_edit_frame, width=5,
                                    textvariable=self.param5_value_1)
-        self.param5_entry1.grid(column=1, row=5)
+        self.param5_entry1.grid(column=1, row=7)
         self.param5_entry2 = Entry(gimmick_edit_frame, width=5,
                                    textvariable=self.param5_value_2)
-        self.param5_entry2.grid(column=2, row=5)
+        self.param5_entry2.grid(column=2, row=7)
 
         # Frame to toggle the visible layers
 
@@ -393,6 +406,8 @@ class MapCanvas(Toplevel):
 
     def _show_gimmick_info(self, gimmick):
         """ Display the relevant info relating to the selected gimmick """
+        self.gimmick_wuid.set(gimmick.wuid)
+        self.gimmick_group.set(gimmick.group)
         for i, name in enumerate(gimmick.param_names):
             name_var = getattr(self, 'param{0}_name'.format(str(i)))
             name_var.set(name)
@@ -543,7 +558,11 @@ class MapCanvas(Toplevel):
                 self.canvas.itemconfig(ID, state=HIDDEN)
 
     def button_press(self, event):
-        self.current_selection = self.canvas.find_withtag("current")[0]
+        self.current_selection = self.canvas.find_withtag("current")
+
+        if len(self.current_selection) == 0:
+            return None
+        self.current_selection = self.current_selection[0]
 
         if self.current_selection in self.gimmicks:
             self._show_gimmick_info(self.gimmick_data[self.current_selection])
@@ -554,7 +573,7 @@ class MapCanvas(Toplevel):
         if not self.moving_item:
             return
         if self.current_selection in self.gimmicks:
-            gimmick = self.gimmick_map[self.current_selection]
+            gimmick = self.gimmick_data[self.current_selection]
             gimmick.x = int(self.curr_item_location[0])
             gimmick.y = 32 * self.height - int(self.curr_item_location[1]) + 32
         # reset the current selection to be None

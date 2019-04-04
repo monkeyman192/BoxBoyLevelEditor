@@ -17,6 +17,12 @@ def gimmick_factory(gimmick_bytes):
         return Gimmick_Laser(gimmick_bytes)
     if kind == 4:
         return Gimmick_Crown(gimmick_bytes)
+    if kind == 8:
+        return Gimmick_BreakBlock(gimmick_bytes)
+    if kind == 13:
+        return Gimmick_HelpArea(gimmick_bytes)
+    if kind == 17:
+        return Gimmick_FallSplinter(gimmick_bytes)
     elif kind == 22:
         return Gimmick_Battery(gimmick_bytes)
     elif kind == 23:
@@ -188,6 +194,83 @@ class Gimmick_Crown(Gimmick):
     """ Gimmick # 4 """
     def __init__(self, fobj):
         super(Gimmick_Crown, self).__init__(fobj)
+
+
+class Gimmick_BreakBlock(Gimmick):
+    """ Gimmick # 8 """
+    def __init__(self, fobj):
+        super(Gimmick_BreakBlock, self).__init__(fobj)
+
+
+class Gimmick_HelpArea(Gimmick):
+    """ Gimmick # 13 """
+    def __init__(self, fobj):
+        self.param_names = ('position', 'extent',
+                            'player_position', 'player_extent',
+                            'param4', 'param5')
+        self.param_fmts = ('<hh', '<hh', '<hh', '<hh', '<i', '<i')
+        super(Gimmick_HelpArea, self).__init__(fobj)
+
+    def image(self, data):
+        return {'rectangle': (self.position[0], self.position[1],
+                              self.position[0] + self.extent[0],
+                              self.position[1] - self.extent[1])}
+
+    @property
+    def position(self):
+        return (self.param0[1], self.param0[0])
+
+    @position.setter
+    def position(self, value):
+        self.param0 = (value[1], value[0])
+
+    @property
+    def extent(self):
+        return (self.param1[1], self.param1[0])
+
+    @extent.setter
+    def extent(self, value):
+        self.param1 = (value[1], value[0])
+
+    @property
+    def player_position(self):
+        return (self.param2[1], self.param2[0])
+
+    @player_position.setter
+    def player_position(self, value):
+        self.param2 = (value[1], value[0])
+
+    @property
+    def player_extent(self):
+        return (self.param3[1], self.param3[0])
+
+    @player_extent.setter
+    def player_extent(self, value):
+        self.param3 = (value[1], value[0])
+
+
+class Gimmick_FallSplinter(Gimmick):
+    """ Gimmick # 17 """
+    def __init__(self, fobj):
+        self.param_names = ('direction', 'rate', 'param2', 'param3', 'param4',
+                            'param5')
+        super(Gimmick_FallSplinter, self).__init__(fobj)
+
+    @property
+    def direction(self):
+        return self.param0
+
+    @direction.setter
+    def direction(self, value):
+        self.param0 = value
+
+    @property
+    def rate(self):
+        return self.param1
+
+    @rate.setter
+    def rate(self, value):
+        self.param1 = value
 
 
 class Gimmick_Battery(Gimmick):

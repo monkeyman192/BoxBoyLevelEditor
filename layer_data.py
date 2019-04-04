@@ -5,6 +5,8 @@ GIMMICKS = {
         6: {'path': 'images\\Gimmicks\\03_Laser.png', 'mods': ['rot_180']},
         8: {'path': 'images\\Gimmicks\\03_Laser.png', 'mods': ['rot_270']}},
     4: {'path': 'images\\Gimmicks\\04_Crown.png'},
+    8: {'path': 'images\\Gimmicks\\08_BreakFloor.png'},
+    17: {'path': 'images\\Gimmicks\\17_FallSplinter.png'},
     22: {0: {'path': 'images\\Gimmicks\\22_Battery_Plus.png'},
          1: {'path': 'images\\Gimmicks\\22_Battery_Minus.png'}},
     23: {0: {'path': 'images\\Gimmicks\\23_WarpCloud.png'},
