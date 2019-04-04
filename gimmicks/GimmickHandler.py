@@ -1,4 +1,4 @@
-from bbmap2 import Gimmick
+from .Gimmicks import Gimmick
 
 
 class GimmickHandler():

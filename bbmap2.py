@@ -1,31 +1,9 @@
 import struct
-from lxml import etree
 from io import BytesIO
-from PIL import Image, ImageTk
+import shutil
 
-
-def read_int32(fobj):
-    return struct.unpack('<i', fobj.read(0x4))[0]
-
-
-def read_tuple16(fobj):
-    return struct.unpack('<hh', fobj.read(0x4))
-
-
-def write_int32(fobj, data):
-    fobj.write(struct.pack('<i', data))
-
-
-def write_tuple16(fobj, data):
-    fobj.write(struct.pack('<hh', data[0], data[1]))
-
-
-def write_int32_array(fobj, data):
-    # flip the data
-    d = data[::-1]
-    for row in d:
-        for value in row:
-            write_int32(fobj, value)
+from serialization.io import read_int32, write_int32, write_int32_array
+from gimmicks.Gimmicks import gimmick_factory
 
 
 class BBMap():
@@ -43,9 +21,12 @@ class BBMap():
             fobj.seek(0x4, 1)
             self._read_moving_platform_path_data(fobj)
 
-    def export(self):
+    def save(self):
         """ Export all the data. """
-        pass
+        data = bytes(self)
+        shutil.copy(self.fpath, self.fpath + '_orig')
+        with open(self.fpath, 'wb') as f:
+            f.write(data)
 
     def _read_header(self, fobj):
         self.magic = struct.unpack('4s', fobj.read(0x4))[0]
@@ -303,188 +284,6 @@ class MovableBlock():
         for data in self.block_locations:
             _bytes += struct.pack('<ii', *data)
         return _bytes
-
-
-def gimmick_factory(gimmick_bytes):
-    # first, get the kind:
-    gimmick_bytes.seek(0x4)
-    kind = read_int32(gimmick_bytes)
-    gimmick_bytes.seek(0)
-    if kind == 2:
-        return Gimmick_Door(gimmick_bytes)
-    if kind == 3:
-        return Gimmick_Laser(gimmick_bytes)
-    if kind == 4:
-        return Gimmick_Crown(gimmick_bytes)
-    elif kind == 22:
-        return Gimmick_Battery(gimmick_bytes)
-    else:
-        return Gimmick(gimmick_bytes)
-
-
-class Gimmick():
-    def __init__(self, fobj):
-        self.param_fmts = ('<i', '<i', '<i', '<i', '<i', '<i')
-
-        if fobj is None:
-            return
-        self.wuid = read_int32(fobj)
-        self.kind = read_int32(fobj)
-        self.x = read_int32(fobj)
-        self.y = read_int32(fobj)
-        self.group = read_int32(fobj)
-        self.appearance = read_int32(fobj)
-
-        self.load_parameters(fobj)
-
-    @staticmethod
-    def new(wuid, kind, x, y, group, appearance=0):
-        if kind == 3:
-            new_class = Gimmick_Laser(None)
-            new_class.direction = 8  # up by default
-        elif kind == 4:
-            new_class = Gimmick_Crown(None)
-        new_class.wuid = wuid
-        new_class.kind = kind
-        new_class.x = x
-        new_class.y = y
-        new_class.group = group
-        new_class.appearance = appearance
-        return new_class
-
-    def load_parameters(self, fobj):
-        self.param0 = read_int32(fobj)
-        self.param1 = read_int32(fobj)
-        self.param2 = read_int32(fobj)
-        self.param3 = read_int32(fobj)
-        self.param4 = read_int32(fobj)
-        self.param5 = read_int32(fobj)
-
-    def export(self, i):
-        gimmick_data = etree.Element('Gimmick_{0}'.format(str(i)))
-        wuid = etree.Element('wuid')
-        wuid.text = str(self.wuid)
-        gimmick_data.append(wuid)
-        kind = etree.Element('kind')
-        kind.text = str(self.kind)
-        gimmick_data.append(kind)
-        x = etree.Element('x')
-        x.text = str(self.x)
-        gimmick_data.append(x)
-        y = etree.Element('y')
-        y.text = str(self.y)
-        gimmick_data.append(y)
-        group = etree.Element('group')
-        group.text = str(self.group)
-        gimmick_data.append(group)
-        appearance = etree.Element('appearance')
-        appearance.text = str(self.appearance)
-        gimmick_data.append(appearance)
-        param0 = etree.Element('param0')
-        param0.text = str(self.param0)
-        gimmick_data.append(param0)
-        param1 = etree.Element('param1')
-        param1.text = str(self.param1)
-        gimmick_data.append(param1)
-        param2 = etree.Element('param2')
-        param2.text = str(self.param2)
-        gimmick_data.append(param2)
-        param3 = etree.Element('param3')
-        param3.text = str(self.param3)
-        gimmick_data.append(param3)
-        param4 = etree.Element('param4')
-        param4.text = str(self.param4)
-        gimmick_data.append(param4)
-        param5 = etree.Element('param5')
-        param5.text = str(self.param5)
-        gimmick_data.append(param5)
-
-    def image(self, data):
-        return data.get(self.kind)
-
-    def __bytes__(self):
-        """ Serialize the Gimmick data. """
-        data = BytesIO(b'')
-        write_int32(data, self.wuid)
-        write_int32(data, self.kind)
-        write_int32(data, self.x)
-        write_int32(data, self.y)
-        write_int32(data, self.group)
-        write_int32(data, self.appearance)
-
-        for i, fmt in enumerate(self.param_fmts):
-            if fmt == '<i':
-                try:
-                    write_int32(data, getattr(self, 'param{0}'.format(str(i))))
-                except struct.error:
-                    print(getattr(self, 'param{0}'.format(str(i))))
-                    raise
-            elif fmt == '<hh':
-                write_tuple16(data, getattr(self, 'param{0}'.format(str(i))))
-
-        return data.getvalue()
-
-    def __getattr__(self, name):
-        if 'param' in name:
-            return 0
-        else:
-            raise AttributeError
-
-
-class Gimmick_SpawnPoint(Gimmick):
-    """ Gimmick # 0 """
-    def __init__(self, fobj):
-        super(Gimmick_SpawnPoint, self).__init__(fobj)
-
-
-class Gimmick_Door(Gimmick):
-    """ Gimmick # 2 """
-    def __init__(self, fobj):
-        super(Gimmick_Door, self).__init__(fobj)
-        self.y += 32
-
-    def __bytes__(self):
-        self.y -= 32
-        _bytes = super(Gimmick_Door, self).__bytes__()
-        self.y += 32
-        return _bytes
-
-
-class Gimmick_Laser(Gimmick):
-    """ Gimmick # 3 """
-    def __init__(self, fobj):
-        super(Gimmick_Laser, self).__init__(fobj)
-
-    def image(self, data):
-        return data[self.kind][self.direction]
-
-    @property
-    def direction(self):
-        return self.param0
-
-    @direction.setter
-    def direction(self, value):
-        self.param0 = value
-
-
-class Gimmick_Crown(Gimmick):
-    """ Gimmick # 4 """
-    def __init__(self, fobj):
-        super(Gimmick_Crown, self).__init__(fobj)
-
-
-class Gimmick_Battery(Gimmick):
-    """ Gimmick # 22 """
-    def __init__(self, fobj):
-        super(Gimmick_Battery, self).__init__(fobj)
-
-    def load_parameters(self, fobj):
-        self.polarity = self.param0 = read_int32(fobj)
-        self.is_toggle = self.param1 = read_int32(fobj)
-        self.target_id = self.param2 = read_int32(fobj)
-
-    def image(self, data):
-        return data[self.kind][self.polarity]
 
 
 class Pointer():

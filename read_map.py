@@ -133,7 +133,7 @@ layer 1: map tile sprite
  3 - convex NE & NW
  4 - convex NW & SW
  5 - also normal??
- 6 - convex NE & SW
+ 6 - convex NE & SE
  8 - normal
 11 - convex SW
 13 - convex SE
@@ -145,24 +145,56 @@ layer 1: map tile sprite
 22 - concave NE & NW
 24 - concave NE
 25 - concave NW
+# sticky walls
 41 - sticky-wall N & W
 42 - sticky-wall N
 43 - sticky-wall N & E
+44 - sticky-wall W & N & E
+45 - sticky-wall S & W & N
+46 - sticky-wall S & N
+47 - sticky-wall S & E & N
 48 - sticky-wall W
+49 - Normal wall
 50 - sticky-wall E
+51 - sticky-wall E & W
+52 - sticky-wall S & W
 53 - sticky-wall S
 54 - sticky-wall S & E
 55 - sticky-wall S & E & W
 56 - sticky-wall N & S & E & W
-58 - bottom half-inset / down-facing door thing
-65 - left half-inset / right facing door thing
-66 - right half-inset / left facing door thing
+# half-width pieces
+57 - Top half, left end
+58 - Top half
+59 - Top half, right end
+60 - Left half, top end
+61 - Right half, top end
+62 - Bottom half, left end
+63 - Bottom half
+64 - Bottom half, right end
+65 - Left half
+66 - Right half
+67 - Left half, bottom end
+68 - Right half, bottom end
+69 - Top half, left and right end
+70 - Bottom half, left and right end
+71 - Left half, top and bottom end
+72 - Right half, top and bottom end
+# More sticky walls, with grey corners for thin pieces.
+73 - Sticky-wall N & W, SE grey
+74 - Sticky-wall N & E, SW grey
+75 - Sticky-wall S & W, NE grey
+76 - Sticky-wall S & E, NW grey
+77 - Sticky-wall S, NE & NW grey
+78 - Sticky-wall E, SW & NW grey
+79 - Sticky-wall W, NE & SE grey
+80 - Sticky-wall N, SE & SW grey
 100 - Past Boy (greyed out "dead" (?) Qbby)
 300 - up-facing spikes individual
 301 - up-facing spikes
 302 - up-facing spikes left end
 303 - up-facing spikes right end
 304 - moving blocks
+317 - down-facing spike individual (?)
 318 - down-facing spikes
 319 - down-facing spikes left end
 320 - down-facing spikes right end
