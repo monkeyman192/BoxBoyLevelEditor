@@ -136,32 +136,32 @@ The Gimmick kind is specified by the `kind` value at `+0x4`.
 | 2    |       World exit door |
 | 3    |                 Laser |
 | 4    |                 Crown |
-| 5    |                     ? |
+| 5    |                  NONE |
 | 6    |                Button |
 | 7    |          Toggle block |
 | 8    |           Break block |
 | 9    |                     ? |
-| 10   |                     ? |
+| 10   |                  NONE |
 | 11   |          Raising door |
 | 12   |                     ? |
 | 13   |             Hint area |
-| 14   |                     ? |
+| 14   |                  NONE |
 | 15   |                     ? |
-| 16   |                     ? |
-| 17   |                     ? |
+| 16   |                  NONE |
+| 17   |        Falling spikes |
 | 18   |                Spikey |
 | 19   |             Score dot |
-| 20   |                     ? |
-| 21   |                     ? |
+| 20   |                  NONE |
+| 21   |                  NONE |
 | 22   |               Battery |
-| 23   |                     ? |
-| 24   |                     ? |
+| 23   |            Warp cloud |
+| 24   |       Crane end joint |
 | 25   |                 Crane |
 | 26   |      Spikey end point |
 | 27   |         Gravity field |
 | 28   |      World entry door |
 | 29   |       Shop entry door |
-| 30   |                     ? |
+| 30   |                  None |
 | 31   | Black overworld smoke |
 | 32   |                     ? |
 | 33   |                     ? |
@@ -169,6 +169,7 @@ The Gimmick kind is specified by the `kind` value at `+0x4`.
 | 35   |                 Chest |
 
 - Laser (kind *3*)
+
   | Param | Datatype |   Name    |                           Description |
   | :---- | :------: | :-------: | ------------------------------------: |
   | 0     |  int32   | Direction | 2 = Down, 4 = Left, 6 = Right, 8 = Up |
@@ -176,6 +177,7 @@ The Gimmick kind is specified by the `kind` value at `+0x4`.
 - Crown (kind *4*)
 
 - Button (kind *6*)
+
   | Param | Datatype |   Name    |                                                 Description |
   | :---- | :------: | :-------: | ----------------------------------------------------------: |
   | 0     |  int32   | Direction |                       2 = Down, 4 = Left, 6 = Right, 8 = Up |
@@ -183,6 +185,7 @@ The Gimmick kind is specified by the `kind` value at `+0x4`.
   | 2     |  int32   |  Target   | `wuid` of the door to open when pressed,<br>or -1 to toggle |
 
 - Battery (kind *22*)
+
   | Param | Datatype |    Name     |                                                  Description |
   | :---- | :------: | :---------: | -----------------------------------------------------------: |
   | 0     |  int32   |  Direction  |                                          0 = Plus, 1 = Minus |
@@ -191,10 +194,11 @@ The Gimmick kind is specified by the `kind` value at `+0x4`.
     \* Only the (-) block Gimmick data needs the -1 value for Param2. The (+) block is 0 in this case.
 
 - Warp cloud (kind *23*)
-  | Param |    Datatype    |       Name       |                                                              Description |
-  | :---- | :------------: | :--------------: | -----------------------------------------------------------------------: |
-  | group |      n/a       |       n/a        |                                 Warp clouds should be paired into groups |
-  | 0     |     int32      |    Direction     |                                                         0 = Up, 1 = Down |
-  | 1     | (int16, int16) | Start coordinate |                                                   (initial x, initial y) |
-  | 2     | (int16, int16) |    Dimensions    |                                                          (width, height) |
+
+  | Param |    Datatype    |       Name       |                                                                  Description |
+  | :---- | :------------: | :--------------: | ---------------------------------------------------------------------------: |
+  | group |      n/a       |       n/a        |                                     Warp clouds should be paired into groups |
+  | 0     |     int32      |    Direction     |                                                             0 = Up, 1 = Down |
+  | 1     | (int16, int16) | Start coordinate |                                                       (initial x, initial y) |
+  | 2     | (int16, int16) |    Dimensions    |                                                              (width, height) |
   | 3     |     int32      |   Linked group   | For up facing: group number to spit you out of.<br>For down facing: Always 0 |
