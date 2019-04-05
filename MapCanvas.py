@@ -1,7 +1,7 @@
 from tkinter import (Canvas, Toplevel, Frame, Button, Checkbutton, Scrollbar,
                      Menu, Entry, Label)
 from tkinter import BooleanVar, IntVar, StringVar
-from tkinter import NORMAL, HIDDEN, VERTICAL, HORIZONTAL, ALL, DISABLED
+from tkinter import NORMAL, HIDDEN, VERTICAL, HORIZONTAL, ALL, DISABLED, RIDGE
 from PIL import Image, ImageTk
 
 from layer_data import GIMMICKS, LAYER1, LAYER6
@@ -13,6 +13,8 @@ BLOCK_COLOURS = {1: '#000000',
                  2: '#FF0000',
                  5: '#FF00FF',
                  8: '#FF0000'}
+
+ACTIVEOUTLINE = '#FF5000'
 
 
 class MapCanvas(Toplevel):
@@ -30,6 +32,7 @@ class MapCanvas(Toplevel):
         self.box_set_num = IntVar(value=self.stage_data.box_set_num)
 
         # StringVar's to allow the gimmick info panel to show the correct name
+        self.gimmick_type_name = StringVar(value='n/a')
         self.param0_name = StringVar(value='param0')
         self.param1_name = StringVar(value='param1')
         self.param2_name = StringVar(value='param2')
@@ -110,6 +113,7 @@ class MapCanvas(Toplevel):
             self.add_item_location[0],
             self.add_item_location[1])
         gimmick_img_data = new_obj.image(GIMMICKS)
+        # TODO: make work for drawn things
         image = self._get_gimmick_image(gimmick_img_data)
         ID = self.canvas.create_image(
             new_obj.x,
@@ -160,7 +164,8 @@ class MapCanvas(Toplevel):
             ID = self.canvas.create_rectangle(
                 32 * x, 32 * y,
                 32 * (x + 1), 32 * (y + 1),
-                fill='#222222')
+                fill='#222222',
+                activeoutline=ACTIVEOUTLINE)
         else:
             ID = self.canvas.create_image(
                 32 * x, 32 * (y + 1),
@@ -191,7 +196,7 @@ class MapCanvas(Toplevel):
     def _create_widgets(self):
         map_frame = Frame(self)
         map_frame.grid(column=0, row=0, sticky='nsew', rowspan=3)
-        self.canvas = Canvas(map_frame)
+        self.canvas = Canvas(map_frame, height='10c', width='15c')
         self.canvas.grid(column=0, row=0, sticky='nsew')
         xsb = Scrollbar(map_frame, orient=HORIZONTAL)
         ysb = Scrollbar(map_frame, orient=VERTICAL)
@@ -207,7 +212,7 @@ class MapCanvas(Toplevel):
 
         # Info frame to modify map properties
 
-        map_info_frame = Frame(info_frame)
+        map_info_frame = Frame(info_frame, relief=RIDGE, bd=2)
         map_info_frame.grid(column=0, row=0)
 
         # TODO: force the box entry variables to only allow 1-9 and 1-2
@@ -223,71 +228,74 @@ class MapCanvas(Toplevel):
 
         # Frame to edit properties of the currently selected gimmick
 
-        gimmick_edit_frame = Frame(info_frame)
+        gimmick_edit_frame = Frame(info_frame, relief=RIDGE, bd=2)
         gimmick_edit_frame.grid(column=0, row=1)
 
+        Label(gimmick_edit_frame, textvariable=self.gimmick_type_name).grid(
+            column=0, row=0, sticky='w', columnspan=3)
+
         Label(gimmick_edit_frame,
-              text='wuid').grid(column=0, row=0, sticky='w')
+              text='wuid').grid(column=0, row=1, sticky='w')
         Entry(gimmick_edit_frame, width=5,
-              textvariable=self.gimmick_wuid).grid(column=1, row=0, sticky='w')
+              textvariable=self.gimmick_wuid).grid(column=1, row=1, sticky='w')
         Label(gimmick_edit_frame,
-              text='group').grid(column=0, row=1, sticky='w')
+              text='group').grid(column=0, row=2, sticky='w')
         Entry(gimmick_edit_frame, width=5,
-              textvariable=self.gimmick_group).grid(column=1, row=1,
+              textvariable=self.gimmick_group).grid(column=1, row=2,
                                                     sticky='w')
 
         Label(gimmick_edit_frame,
-              textvariable=self.param0_name).grid(column=0, row=2)
+              textvariable=self.param0_name).grid(column=0, row=3)
         self.param0_entry1 = Entry(gimmick_edit_frame, width=5,
                                    textvariable=self.param0_value_1)
-        self.param0_entry1.grid(column=1, row=2)
+        self.param0_entry1.grid(column=1, row=3)
         self.param0_entry2 = Entry(gimmick_edit_frame, width=5,
                                    textvariable=self.param0_value_2)
-        self.param0_entry2.grid(column=2, row=2)
+        self.param0_entry2.grid(column=2, row=3)
         Label(gimmick_edit_frame,
-              textvariable=self.param1_name).grid(column=0, row=3)
+              textvariable=self.param1_name).grid(column=0, row=4)
         self.param1_entry1 = Entry(gimmick_edit_frame, width=5,
                                    textvariable=self.param1_value_1)
-        self.param1_entry1.grid(column=1, row=3)
+        self.param1_entry1.grid(column=1, row=4)
         self.param1_entry2 = Entry(gimmick_edit_frame, width=5,
                                    textvariable=self.param1_value_2)
-        self.param1_entry2.grid(column=2, row=3)
+        self.param1_entry2.grid(column=2, row=4)
         Label(gimmick_edit_frame,
-              textvariable=self.param2_name).grid(column=0, row=4)
+              textvariable=self.param2_name).grid(column=0, row=5)
         self.param2_entry1 = Entry(gimmick_edit_frame, width=5,
                                    textvariable=self.param2_value_1)
-        self.param2_entry1.grid(column=1, row=4)
+        self.param2_entry1.grid(column=1, row=5)
         self.param2_entry2 = Entry(gimmick_edit_frame, width=5,
                                    textvariable=self.param2_value_2)
-        self.param2_entry2.grid(column=2, row=4)
+        self.param2_entry2.grid(column=2, row=5)
         Label(gimmick_edit_frame,
-              textvariable=self.param3_name).grid(column=0, row=5)
+              textvariable=self.param3_name).grid(column=0, row=6)
         self.param3_entry1 = Entry(gimmick_edit_frame, width=5,
                                    textvariable=self.param3_value_1)
-        self.param3_entry1.grid(column=1, row=5)
+        self.param3_entry1.grid(column=1, row=6)
         self.param3_entry2 = Entry(gimmick_edit_frame, width=5,
                                    textvariable=self.param3_value_2)
-        self.param3_entry2.grid(column=2, row=5)
+        self.param3_entry2.grid(column=2, row=6)
         Label(gimmick_edit_frame,
-              textvariable=self.param4_name).grid(column=0, row=6)
+              textvariable=self.param4_name).grid(column=0, row=7)
         self.param4_entry1 = Entry(gimmick_edit_frame, width=5,
                                    textvariable=self.param4_value_1)
-        self.param4_entry1.grid(column=1, row=6)
+        self.param4_entry1.grid(column=1, row=7)
         self.param4_entry2 = Entry(gimmick_edit_frame, width=5,
                                    textvariable=self.param4_value_2)
-        self.param4_entry2.grid(column=2, row=6)
+        self.param4_entry2.grid(column=2, row=7)
         Label(gimmick_edit_frame,
-              textvariable=self.param5_name).grid(column=0, row=7)
+              textvariable=self.param5_name).grid(column=0, row=8)
         self.param5_entry1 = Entry(gimmick_edit_frame, width=5,
                                    textvariable=self.param5_value_1)
-        self.param5_entry1.grid(column=1, row=7)
+        self.param5_entry1.grid(column=1, row=8)
         self.param5_entry2 = Entry(gimmick_edit_frame, width=5,
                                    textvariable=self.param5_value_2)
-        self.param5_entry2.grid(column=2, row=7)
+        self.param5_entry2.grid(column=2, row=8)
 
         # Frame to toggle the visible layers
 
-        toggle_frame = Frame(info_frame)
+        toggle_frame = Frame(info_frame, relief=RIDGE, bd=2)
         toggle_frame.grid(column=0, row=2)
 
         Checkbutton(toggle_frame,
@@ -388,7 +396,8 @@ class MapCanvas(Toplevel):
                     ID = self.canvas.create_rectangle(
                         32 * x, 32 * y,
                         32 * (x + 1), 32 * (y + 1),
-                        fill=BLOCK_COLOURS.get(i, '#AAAAAA'))
+                        fill=BLOCK_COLOURS.get(i, '#AAAAAA'),
+                        activeoutline=ACTIVEOUTLINE)
                     self.stage_data_tiles[ID] = (x, y)
         self.canvas.config(scrollregion=self.canvas.bbox(ALL))
 
@@ -408,20 +417,23 @@ class MapCanvas(Toplevel):
         """ Display the relevant info relating to the selected gimmick """
         self.gimmick_wuid.set(gimmick.wuid)
         self.gimmick_group.set(gimmick.group)
+        self.gimmick_type_name.set(gimmick.name)
         for i, name in enumerate(gimmick.param_names):
             name_var = getattr(self, 'param{0}_name'.format(str(i)))
             name_var.set(name)
             param_value1 = getattr(self, 'param{0}_value_1'.format(str(i)))
+            param_value2 = getattr(self, 'param{0}_value_2'.format(str(i)))
             param_entry2 = getattr(self, 'param{0}_entry2'.format(str(i)))
             if gimmick.param_fmts[i] == '<i':
                 param_value1.set(getattr(gimmick, 'param{0}'.format(str(i))))
+                param_value2.set(0)
                 param_entry2.config(state=DISABLED)
             elif gimmick.param_fmts[i] == '<hh':
-                param_value2 = getattr(self, 'param{0}_value_2'.format(str(i)))
+                # display the params in the opposite order as they are flipped
                 param_value1.set(getattr(gimmick,
-                                         'param{0}'.format(str(i)))[0])
-                param_value2.set(getattr(gimmick,
                                          'param{0}'.format(str(i)))[1])
+                param_value2.set(getattr(gimmick,
+                                         'param{0}'.format(str(i)))[0])
                 param_entry2.config(state=NORMAL)
 
     def _toggle_gimmicks(self):
@@ -436,11 +448,32 @@ class MapCanvas(Toplevel):
                         # Don't draw it or anything...
                         continue
                     image = self._get_gimmick_image(gimmick_img_data)
-                    if isinstance(image, tuple):
-                        ID = self.canvas.create_rectangle(
-                            image[0], 32 * self.height - image[1],
-                            image[2], 32 * self.height - image[3],
-                            fill='#0000AA')
+                    if isinstance(image, list):
+                        for drawing_params in image:
+                            if 'rectangle' in drawing_params:
+                                coords = drawing_params.pop('rectangle')
+                                ID = self.canvas.create_rectangle(
+                                    coords[0], 32 * self.height - coords[1],
+                                    coords[2], 32 * self.height - coords[3],
+                                    activeoutline=ACTIVEOUTLINE,
+                                    **drawing_params)
+                            elif 'text' in drawing_params:
+                                position = drawing_params.pop('position')
+                                self.canvas.create_text(
+                                    position[0] + 5,
+                                    32 * self.height - position[1] + 5,
+                                    **drawing_params,
+                                    anchor='nw')
+                            elif 'image' in drawing_params:
+                                image = self._get_gimmick_image(
+                                    drawing_params['image'])
+                                position = drawing_params['position']
+                                self.canvas.create_image(
+                                    position[0],
+                                    32 * self.height - position[1] + 32,
+                                    image=image,
+                                    anchor='sw')
+
                     else:
                         ID = self.canvas.create_image(
                             gimmick.x,
@@ -454,8 +487,8 @@ class MapCanvas(Toplevel):
                 self.canvas.itemconfig(ID, state=HIDDEN)
 
     def _get_gimmick_image(self, gimmick_img_data):
-        if 'rectangle' in gimmick_img_data:
-            return gimmick_img_data['rectangle']
+        if 'drawn' in gimmick_img_data:
+            return gimmick_img_data['drawn']
         sprite_name = '{0}_{1}'.format(
             gimmick_img_data['path'],
             gimmick_img_data.get('mods', ''))
@@ -508,7 +541,8 @@ class MapCanvas(Toplevel):
                             ID = self.canvas.create_rectangle(
                                 32 * x, 32 * y,
                                 32 * (x + 1), 32 * (y + 1),
-                                fill='#222222')
+                                fill='#222222',
+                                activeoutline=ACTIVEOUTLINE)
                         else:
                             ID = self.canvas.create_image(
                                 32 * x, 32 * (y + 1),

@@ -11,6 +11,8 @@ def gimmick_factory(gimmick_bytes):
     gimmick_bytes.seek(0x4)
     kind = read_int32(gimmick_bytes)
     gimmick_bytes.seek(0)
+    if kind == 0:
+        return Gimmick_SpawnPoint(gimmick_bytes)
     if kind == 2:
         return Gimmick_Door(gimmick_bytes)
     if kind == 3:
@@ -52,6 +54,8 @@ class Gimmick():
         self.appearance = read_int32(fobj)
 
         self.load_parameters(fobj)
+
+        self.name = 'Unknown'
 
     @staticmethod
     def new(wuid, kind, x, y, group, appearance=0):
@@ -154,19 +158,75 @@ class Gimmick():
 class Gimmick_SpawnPoint(Gimmick):
     """ Gimmick # 0 """
     def __init__(self, fobj):
+        self.param_names = ('number', 'spawn_type', 'param2', 'position',
+                            'extent', 'param5')
+        self.param_fmts = ('<i', '<i', '<i', '<hh', '<hh', '<i')
         super(Gimmick_SpawnPoint, self).__init__(fobj)
+        self.name = 'Spawn Point'
+
+    def image(self, data):
+        # If it is the initial spawn, draw a little Qbby
+        if self.spawn_type == 0:
+            return data[self.kind]
+        # otherwise draw the extent of the respawn region
+        return {'drawn': [{'rectangle': (self.position[0], self.position[1],
+                                         self.position[0] + self.extent[0],
+                                         self.position[1] - self.extent[1]),
+                           'width': 2,
+                           'stipple': 'gray12',
+                           'fill': '#FF0000'},
+                          {'text': str(self.number),
+                           'position': (self.position[0], self.position[1]),
+                           'fill': '#FF0000',
+                           'font': 'Times 18 bold'},
+                          {'image': data[self.kind],
+                           'position': (self.x - 16, self.y)},
+                          {'text': str(self.number),
+                           'position': (self.x - 16, self.y),
+                           'fill': '#FF0000',
+                           'font': 'Times 18 bold'}]}
+
+    @property
+    def number(self):
+        return self.param0
+
+    @number.setter
+    def number(self, value):
+        self.param0 = value
+
+    @property
+    def spawn_type(self):
+        return self.param1
+
+    @spawn_type.setter
+    def spawn_type(self, value):
+        self.param1 = value
+
+    @property
+    def position(self):
+        return (self.param3[1], self.param3[0])
+
+    @position.setter
+    def position(self, value):
+        self.param3 = (value[1], value[0])
+
+    @property
+    def extent(self):
+        return (self.param4[1], self.param4[0])
+
+    @extent.setter
+    def extent(self, value):
+        self.param4 = (value[1], value[0])
 
 
 class Gimmick_Door(Gimmick):
     """ Gimmick # 2 """
     def __init__(self, fobj):
         super(Gimmick_Door, self).__init__(fobj)
-        self.y += 32
+        self.name = 'Door'
 
     def __bytes__(self):
-        self.y -= 32
         _bytes = super(Gimmick_Door, self).__bytes__()
-        self.y += 32
         return _bytes
 
 
@@ -177,6 +237,7 @@ class Gimmick_Laser(Gimmick):
                             'param4', 'param5')
 
         super(Gimmick_Laser, self).__init__(fobj)
+        self.name = 'Laser'
 
     def image(self, data):
         return data[self.kind][self.direction]
@@ -194,12 +255,14 @@ class Gimmick_Crown(Gimmick):
     """ Gimmick # 4 """
     def __init__(self, fobj):
         super(Gimmick_Crown, self).__init__(fobj)
+        self.name = 'Crown'
 
 
 class Gimmick_BreakBlock(Gimmick):
     """ Gimmick # 8 """
     def __init__(self, fobj):
         super(Gimmick_BreakBlock, self).__init__(fobj)
+        self.name = 'BreakBlock'
 
 
 class Gimmick_HelpArea(Gimmick):
@@ -208,13 +271,26 @@ class Gimmick_HelpArea(Gimmick):
         self.param_names = ('position', 'extent',
                             'player_position', 'player_extent',
                             'param4', 'param5')
-        self.param_fmts = ('<hh', '<hh', '<hh', '<hh', '<i', '<i')
+        self.param_fmts = ('<hh', '<hh', '<hh', '<hh', '<i', '<hh')
         super(Gimmick_HelpArea, self).__init__(fobj)
+        self.name = 'Hint Area'
 
     def image(self, data):
-        return {'rectangle': (self.position[0], self.position[1],
-                              self.position[0] + self.extent[0],
-                              self.position[1] - self.extent[1])}
+        return {'drawn': [{'rectangle': (self.position[0], self.position[1],
+                                         self.position[0] + self.extent[0],
+                                         self.position[1] - self.extent[1]),
+                           'width': 2,
+                           'stipple': 'gray12',
+                           'fill': '#30F020'},
+                          {'rectangle': (self.player_position[0],
+                                         self.player_position[1],
+                                         (self.player_position[0] +
+                                          self.player_extent[0]),
+                                         (self.player_position[1] -
+                                          self.player_extent[1])),
+                           'width': 2,
+                           'stipple': 'gray12',
+                           'fill': '#E040E0'}]}
 
     @property
     def position(self):
@@ -255,6 +331,7 @@ class Gimmick_FallSplinter(Gimmick):
         self.param_names = ('direction', 'rate', 'param2', 'param3', 'param4',
                             'param5')
         super(Gimmick_FallSplinter, self).__init__(fobj)
+        self.name = 'Falling Spike'
 
     @property
     def direction(self):
@@ -279,6 +356,7 @@ class Gimmick_Battery(Gimmick):
         self.param_names = ('polarity', 'is_toggle', 'target_id', 'param3',
                             'param4', 'param5')
         super(Gimmick_Battery, self).__init__(fobj)
+        self.name = 'Battery'
 
     @property
     def polarity(self):
@@ -315,11 +393,12 @@ class Gimmick_WarpCloud(Gimmick):
                             'param4', 'param5')
         self.param_fmts = ('<i', '<hh', '<hh', '<i', '<i', '<i')
         super(Gimmick_WarpCloud, self).__init__(fobj)
+        self.name = 'Warp Cloud'
 
     def image(self, data):
-        return {'rectangle': (self.position[0], self.position[1],
-                              self.position[0] + self.extent[0],
-                              self.position[1] - self.extent[1])}
+        return {'drawn': [{'rectangle': (self.position[0], self.position[1],
+                                         self.position[0] + self.extent[0],
+                                         self.position[1] - self.extent[1])}]}
 
     @property
     def direction(self):
@@ -361,12 +440,16 @@ class Gimmick_Gravity(Gimmick):
                             'speed', 'param5')
         self.param_fmts = ('<hh', '<hh', '<i', '<i', '<i', '<i')
         super(Gimmick_Gravity, self).__init__(fobj)
+        self.name = 'Gravity'
 
     def image(self, data):
         # final value is subtracted because of the inverted y coordinate
-        return {'rectangle': (self.position[0], self.position[1],
-                              self.position[0] + self.extent[0],
-                              self.position[1] - self.extent[1])}
+        return {'drawn': [{'rectangle': (self.position[0], self.position[1],
+                                         self.position[0] + self.extent[0],
+                                         self.position[1] - self.extent[1]),
+                           'width': 2,
+                           'stipple': 'gray12',
+                           'fill': '#0000FF'}]}
 
     @property
     def position(self):
