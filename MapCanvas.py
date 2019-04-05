@@ -4,7 +4,7 @@ from tkinter import BooleanVar, IntVar, StringVar
 from tkinter import NORMAL, HIDDEN, VERTICAL, HORIZONTAL, ALL, DISABLED, RIDGE
 from PIL import Image, ImageTk
 
-from layer_data import GIMMICKS, LAYER1, LAYER6
+from layer_data import GIMMICKS, LAYER1, LAYER6, MAP_DATA
 from modify_image import apply_mods
 from gimmicks.GimmickHandler import GimmickHandler
 from SpriteHandler import get_sprite
@@ -69,6 +69,7 @@ class MapCanvas(Toplevel):
 
         # Stage data
         self.stage_data_tiles = dict()
+        self.stage_layer_sprites = dict()
         # Gimmick data
         self.gimmicks = list()
         self.gimmick_sprites = dict()
@@ -191,7 +192,10 @@ class MapCanvas(Toplevel):
                 self.stage_data.layer1_data[b][a] = ID
 
     def _assign_number_to_layer(self):
-        pass
+        print('Sorry, not implemented yet...')
+
+    def _hide_hint_gimmicks(self):
+        print('Sorry, not implemented yet...')
 
     def _create_widgets(self):
         map_frame = Frame(self)
@@ -388,16 +392,26 @@ class MapCanvas(Toplevel):
         self.popup_menu.add_command(
             label='Assign number',
             command=self._assign_number_to_layer)
+        self.popup_menu.add_command(
+            label='Hide hints',
+            command=self._hide_hint_gimmicks)
 
     def _draw_map_data(self):
         for y, row in enumerate(self.stage_data.map_layout):
             for x, i in enumerate(row):
                 if i != 0:
-                    ID = self.canvas.create_rectangle(
-                        32 * x, 32 * y,
-                        32 * (x + 1), 32 * (y + 1),
-                        fill=BLOCK_COLOURS.get(i, '#AAAAAA'),
-                        activeoutline=ACTIVEOUTLINE)
+                    if i in MAP_DATA:
+                        image = self._get_layer_image(i, 'map')
+                        ID = self.canvas.create_image(
+                            32 * x, 32 * (y + 1),
+                            image=image,
+                            anchor='sw')
+                    else:
+                        ID = self.canvas.create_rectangle(
+                            32 * x, 32 * y,
+                            32 * (x + 1), 32 * (y + 1),
+                            fill=BLOCK_COLOURS.get(i, '#AAAAAA'),
+                            activeoutline=ACTIVEOUTLINE)
                     self.stage_data_tiles[ID] = (x, y)
         self.canvas.config(scrollregion=self.canvas.bbox(ALL))
 
@@ -503,8 +517,11 @@ class MapCanvas(Toplevel):
         return image
 
     def _get_layer_image(self, ID, layer):
-        layer_map = {1: LAYER1, 6: LAYER6}
-        sprite_layer = getattr(self, 'layer{0}_sprites'.format(str(layer)))
+        layer_map = {'map': MAP_DATA, 1: LAYER1, 6: LAYER6}
+        if layer == 'map':
+            sprite_layer = self.stage_layer_sprites
+        else:
+            sprite_layer = getattr(self, 'layer{0}_sprites'.format(str(layer)))
         if ID in sprite_layer:
             image = sprite_layer[ID]
         else:

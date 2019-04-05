@@ -19,6 +19,10 @@ def gimmick_factory(gimmick_bytes):
         return Gimmick_Laser(gimmick_bytes)
     if kind == 4:
         return Gimmick_Crown(gimmick_bytes)
+    if kind == 6:
+        return Gimmick_Button(gimmick_bytes)
+    if kind == 7:
+        return Gimmick_ToggleBlock(gimmick_bytes)
     if kind == 8:
         return Gimmick_BreakBlock(gimmick_bytes)
     if kind == 13:
@@ -256,6 +260,56 @@ class Gimmick_Crown(Gimmick):
     def __init__(self, fobj):
         super(Gimmick_Crown, self).__init__(fobj)
         self.name = 'Crown'
+
+
+class Gimmick_Button(Gimmick):
+    """ Gimmick # 6 """
+    def __init__(self, fobj):
+        self.param_names = ('direction', 'param1', 'target_id', 'param3',
+                            'param4', 'param5')
+
+        super(Gimmick_Button, self).__init__(fobj)
+        self.name = 'Button'
+
+    def image(self, data):
+        return data[self.kind][self.direction]
+
+    @property
+    def direction(self):
+        return self.param0
+
+    @direction.setter
+    def direction(self, value):
+        self.param0 = value
+
+    @property
+    def target_id(self):
+        return self.param2
+
+    @target_id.setter
+    def target_id(self, value):
+        self.param2 = value
+
+
+class Gimmick_ToggleBlock(Gimmick):
+    """ Gimmick # 7 """
+    def __init__(self, fobj):
+        self.param_names = ('initial_state', 'param1', 'param2', 'param3',
+                            'param4', 'param5')
+
+        super(Gimmick_ToggleBlock, self).__init__(fobj)
+        self.name = 'Toggle Block'
+
+    def image(self, data):
+        return data[self.kind][self.initial_state]
+
+    @property
+    def initial_state(self):
+        return self.param0
+
+    @initial_state.setter
+    def initial_state(self, value):
+        self.param0 = value
 
 
 class Gimmick_BreakBlock(Gimmick):

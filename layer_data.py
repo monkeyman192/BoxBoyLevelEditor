@@ -1,3 +1,9 @@
+MAP_DATA = {
+    7: {'path': 'images\\Sprites\\07_PuzzleBlock.png'}
+}
+# TODO: Add the rectangles to this also to make it all in one place...
+
+
 GIMMICKS = {
     0: {'path': 'images\\Gimmicks\\00_Spawn.png'},
     2: {'path': 'images\\Gimmicks\\02_Door.png'},
@@ -6,6 +12,12 @@ GIMMICKS = {
         6: {'path': 'images\\Gimmicks\\03_Laser.png', 'mods': ['rot_180']},
         8: {'path': 'images\\Gimmicks\\03_Laser.png', 'mods': ['rot_270']}},
     4: {'path': 'images\\Gimmicks\\04_Crown.png'},
+    6: {2: {'path': 'images\\Gimmicks\\06_Button.png', 'mods': ['rot_180']},
+        4: {'path': 'images\\Gimmicks\\06_Button.png', 'mods': ['rot_90']},
+        6: {'path': 'images\\Gimmicks\\06_Button.png', 'mods': ['rot_270']},
+        8: {'path': 'images\\Gimmicks\\06_Button.png'}},
+    7: {0: {'path': 'images\\Gimmicks\\07_ToggleBlock_Inactive.png'},
+        1: {'path': 'images\\Gimmicks\\07_ToggleBlock_Active.png'}},
     8: {'path': 'images\\Gimmicks\\08_BreakBlock.png'},
     17: {'path': 'images\\Gimmicks\\17_FallSplinter.png'},
     22: {0: {'path': 'images\\Gimmicks\\22_Battery_Plus.png'},
