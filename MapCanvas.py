@@ -25,11 +25,18 @@ class MapCanvas(Toplevel):
         self.stage_data = stage_data
         self.gimmick_handler = GimmickHandler(self.stage_data.gimmick_data)
 
+        self.current_gimmick = None
+
         # assign some local variables pulled from the map data
         self.height = len(self.stage_data.map_layout)
         self.width = len(self.stage_data.map_layout[0])
         self.box_number = IntVar(value=self.stage_data.box_number)
         self.box_set_num = IntVar(value=self.stage_data.box_set_num)
+
+        # register the entry validation function
+        self._validate_check_int = self.register(check_int)
+        self._validate_and_apply = self.register(
+            self._validate_and_apply_param)
 
         # StringVar's to allow the gimmick info panel to show the correct name
         self.gimmick_type_name = StringVar(value='n/a')
@@ -114,7 +121,6 @@ class MapCanvas(Toplevel):
             self.add_item_location[0],
             self.add_item_location[1])
         gimmick_img_data = new_obj.image(GIMMICKS)
-        # TODO: make work for drawn things
         image = self._get_gimmick_image(gimmick_img_data)
         ID = self.canvas.create_image(
             new_obj.x,
@@ -153,6 +159,43 @@ class MapCanvas(Toplevel):
         self.stage_data.layer1_data[y][x] = ID
 
         self._redraw_surrounding_sprites(x, y)
+
+    def _validate_and_apply_param(self, new_value, param, comp=None):
+        """ Apply the value in the entry to the gimmick.
+
+        Parameters
+        ----------
+        gimmick : Gimmick
+            Gimmick to apply the value to
+        param : int, str (in {0, 1, 2, 3, 4, 5}, or 'wuid' or 'group')
+            Param number.
+        comp : int (in {0, 1}) or None
+            Whether it is the first or second component.
+        """
+        if check_int(new_value):
+            if new_value == '' or new_value == '-':
+                return True
+            if self.current_gimmick:
+                if param == 'wuid' or param == 'group':
+                    setattr(self.current_gimmick, param, int(new_value))
+                else:
+                    # find out whether the parameter is a tuple or int
+                    param = int(param)
+                    if self.current_gimmick.param_fmts[param] == '<i':
+                        setattr(self.current_gimmick,
+                                'param{0}'.format(str(param)),
+                                int(new_value))
+                    if self.current_gimmick.param_fmts[param] == '<hh':
+                        comp = int(comp)
+                        curr_value = list(
+                            getattr(self.current_gimmick,
+                                    'param{0}'.format(str(param))))
+                        curr_value[1 - comp] = int(new_value)
+                        setattr(self.current_gimmick,
+                                'param{0}'.format(str(param)),
+                                tuple(curr_value))
+            return True
+        return False
 
     def _determine_sprite_id(self, x, y):
         local_array = [i[x-1:x+2] for i in self.stage_data.map_layout[y-1:y+2]]
@@ -197,6 +240,10 @@ class MapCanvas(Toplevel):
     def _hide_hint_gimmicks(self):
         print('Sorry, not implemented yet...')
 
+    def test(self, new_val):
+        print(new_val)
+        return True
+
     def _create_widgets(self):
         map_frame = Frame(self)
         map_frame.grid(column=0, row=0, sticky='nsew', rowspan=3)
@@ -219,16 +266,23 @@ class MapCanvas(Toplevel):
         map_info_frame = Frame(info_frame, relief=RIDGE, bd=2)
         map_info_frame.grid(column=0, row=0)
 
-        # TODO: force the box entry variables to only allow 1-9 and 1-2
-        # respectively
         Label(map_info_frame, text='Number of boxes:').grid(column=0, row=0,
                                                             sticky='w')
-        Entry(map_info_frame, width=3,
-              textvariable=self.box_number).grid(row=0, column=1, sticky='w')
+        Entry(
+            map_info_frame,
+            width=3,
+            validate=ALL,
+            validatecommand=(self._validate_check_int, '%P',
+                             [1, 2, 3, 4, 5, 6, 7, 8, 9]),
+            textvariable=self.box_number).grid(row=0, column=1, sticky='w')
         Label(map_info_frame, text='Box groups:').grid(column=0, row=1,
                                                        sticky='w')
-        Entry(map_info_frame, width=3,
-              textvariable=self.box_set_num).grid(row=1, column=1, sticky='w')
+        Entry(
+            map_info_frame,
+            width=3,
+            validate=ALL,
+            validatecommand=(self._validate_check_int, '%P', [1, 2]),
+            textvariable=self.box_set_num).grid(row=1, column=1, sticky='w')
 
         # Frame to edit properties of the currently selected gimmick
 
@@ -240,60 +294,86 @@ class MapCanvas(Toplevel):
 
         Label(gimmick_edit_frame,
               text='wuid').grid(column=0, row=1, sticky='w')
-        Entry(gimmick_edit_frame, width=5,
+        Entry(gimmick_edit_frame, width=5, validate=ALL,
+              validatecommand=(self._validate_and_apply, '%P', 'wuid'),
               textvariable=self.gimmick_wuid).grid(column=1, row=1, sticky='w')
         Label(gimmick_edit_frame,
               text='group').grid(column=0, row=2, sticky='w')
-        Entry(gimmick_edit_frame, width=5,
+        Entry(gimmick_edit_frame, width=5, validate=ALL,
+              validatecommand=(self._validate_and_apply, '%P', 'group'),
               textvariable=self.gimmick_group).grid(column=1, row=2,
                                                     sticky='w')
 
         Label(gimmick_edit_frame,
               textvariable=self.param0_name).grid(column=0, row=3)
-        self.param0_entry1 = Entry(gimmick_edit_frame, width=5,
+        self.param0_entry1 = Entry(gimmick_edit_frame, width=5, validate=ALL,
+                                   validatecommand=(self._validate_and_apply,
+                                                    '%P', 0, 0),
                                    textvariable=self.param0_value_1)
         self.param0_entry1.grid(column=1, row=3)
-        self.param0_entry2 = Entry(gimmick_edit_frame, width=5,
+        self.param0_entry2 = Entry(gimmick_edit_frame, width=5, validate=ALL,
+                                   validatecommand=(self._validate_and_apply,
+                                                    '%P', 0, 1),
                                    textvariable=self.param0_value_2)
         self.param0_entry2.grid(column=2, row=3)
         Label(gimmick_edit_frame,
               textvariable=self.param1_name).grid(column=0, row=4)
-        self.param1_entry1 = Entry(gimmick_edit_frame, width=5,
+        self.param1_entry1 = Entry(gimmick_edit_frame, width=5, validate=ALL,
+                                   validatecommand=(self._validate_and_apply,
+                                                    '%P', 1, 0),
                                    textvariable=self.param1_value_1)
         self.param1_entry1.grid(column=1, row=4)
-        self.param1_entry2 = Entry(gimmick_edit_frame, width=5,
+        self.param1_entry2 = Entry(gimmick_edit_frame, width=5, validate=ALL,
+                                   validatecommand=(self._validate_and_apply,
+                                                    '%P', 1, 1),
                                    textvariable=self.param1_value_2)
         self.param1_entry2.grid(column=2, row=4)
         Label(gimmick_edit_frame,
               textvariable=self.param2_name).grid(column=0, row=5)
-        self.param2_entry1 = Entry(gimmick_edit_frame, width=5,
+        self.param2_entry1 = Entry(gimmick_edit_frame, width=5, validate=ALL,
+                                   validatecommand=(self._validate_and_apply,
+                                                    '%P', 2, 0),
                                    textvariable=self.param2_value_1)
         self.param2_entry1.grid(column=1, row=5)
-        self.param2_entry2 = Entry(gimmick_edit_frame, width=5,
+        self.param2_entry2 = Entry(gimmick_edit_frame, width=5, validate=ALL,
+                                   validatecommand=(self._validate_and_apply,
+                                                    '%P', 2, 1),
                                    textvariable=self.param2_value_2)
         self.param2_entry2.grid(column=2, row=5)
         Label(gimmick_edit_frame,
               textvariable=self.param3_name).grid(column=0, row=6)
-        self.param3_entry1 = Entry(gimmick_edit_frame, width=5,
+        self.param3_entry1 = Entry(gimmick_edit_frame, width=5, validate=ALL,
+                                   validatecommand=(self._validate_and_apply,
+                                                    '%P', 3, 0),
                                    textvariable=self.param3_value_1)
         self.param3_entry1.grid(column=1, row=6)
-        self.param3_entry2 = Entry(gimmick_edit_frame, width=5,
+        self.param3_entry2 = Entry(gimmick_edit_frame, width=5, validate=ALL,
+                                   validatecommand=(self._validate_and_apply,
+                                                    '%P', 3, 1),
                                    textvariable=self.param3_value_2)
         self.param3_entry2.grid(column=2, row=6)
         Label(gimmick_edit_frame,
               textvariable=self.param4_name).grid(column=0, row=7)
-        self.param4_entry1 = Entry(gimmick_edit_frame, width=5,
+        self.param4_entry1 = Entry(gimmick_edit_frame, width=5, validate=ALL,
+                                   validatecommand=(self._validate_and_apply,
+                                                    '%P', 4, 0),
                                    textvariable=self.param4_value_1)
         self.param4_entry1.grid(column=1, row=7)
-        self.param4_entry2 = Entry(gimmick_edit_frame, width=5,
+        self.param4_entry2 = Entry(gimmick_edit_frame, width=5, validate=ALL,
+                                   validatecommand=(self._validate_and_apply,
+                                                    '%P', 4, 1),
                                    textvariable=self.param4_value_2)
         self.param4_entry2.grid(column=2, row=7)
         Label(gimmick_edit_frame,
               textvariable=self.param5_name).grid(column=0, row=8)
-        self.param5_entry1 = Entry(gimmick_edit_frame, width=5,
+        self.param5_entry1 = Entry(gimmick_edit_frame, width=5, validate=ALL,
+                                   validatecommand=(self._validate_and_apply,
+                                                    '%P', 5, 0),
                                    textvariable=self.param5_value_1)
         self.param5_entry1.grid(column=1, row=8)
-        self.param5_entry2 = Entry(gimmick_edit_frame, width=5,
+        self.param5_entry2 = Entry(gimmick_edit_frame, width=5, validate=ALL,
+                                   validatecommand=(self._validate_and_apply,
+                                                    '%P', 5, 1),
                                    textvariable=self.param5_value_2)
         self.param5_entry2.grid(column=2, row=8)
 
@@ -616,7 +696,8 @@ class MapCanvas(Toplevel):
         self.current_selection = self.current_selection[0]
 
         if self.current_selection in self.gimmicks:
-            self._show_gimmick_info(self.gimmick_data[self.current_selection])
+            self.current_gimmick = self.gimmick_data[self.current_selection]
+            self._show_gimmick_info(self.current_gimmick)
 
     def button_release(self, event):
         """ Un-assign the current selection and apply any modifications to
@@ -648,3 +729,22 @@ class MapCanvas(Toplevel):
                 self.canvas.coords(self.current_selection, [x, y,
                                                             x + 32, y + 32])
             self.curr_item_location = (x, y)
+
+
+def check_int(value_if_allowed, allowed_values=None):
+    """ Callback used to force certain entries to only allow integer value.
+    They May be fixed within a set of values by specifying allowed_values.
+    """
+    # TODO: make allowed_values be more robust???
+    if value_if_allowed == '' or value_if_allowed == '-':
+        return True
+    try:
+        int(value_if_allowed)
+    except ValueError:
+        return False
+    if allowed_values is not None:
+        if value_if_allowed in allowed_values:
+            return True
+        else:
+            return False
+    return True
