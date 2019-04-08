@@ -1,4 +1,4 @@
-from tkinter import Tk, Frame, Button, filedialog, Label
+from tkinter import Tk, Frame, Button, filedialog, Label, BOTH
 import os
 import os.path as op
 import shutil
@@ -104,10 +104,10 @@ class MapEditor(Frame):
 
     def _create_widgets(self):
         mainframe = Frame(self)
-        mainframe.grid(row=0, column=0, sticky='NSEW')
-        Label(mainframe, text='Source').grid(row=0, column=0, sticky='EW')
-        Label(mainframe, text='Patch').grid(row=0, column=1, sticky='EW')
-        Label(mainframe, text='Info').grid(row=0, column=2, sticky='EW')
+        mainframe.grid(row=0, column=0, sticky='nsew')
+        Label(mainframe, text='Source').grid(row=0, column=0, sticky='ew')
+        Label(mainframe, text='Patch').grid(row=0, column=1, sticky='ew')
+        Label(mainframe, text='Info').grid(row=0, column=2, sticky='ew')
         src_tv_frame = Frame(mainframe)
         src_tv_frame.grid(row=1, column=0, sticky='nsew')
         self.src_tv = FileTreeview(src_tv_frame, self.paths['ROMFS_ORIG'],
@@ -120,9 +120,8 @@ class MapEditor(Frame):
                             rightclick=self._right_click_src_entry)
         self.src_tv.heading("#0", text="Directory Structure")
         self.src_tv.heading("dtype", text="Type")
-        self.src_tv.column("dtype", width=50, minwidth=35,
-                           stretch=False)
-        self.src_tv.pack()
+        self.src_tv.column("dtype", width=50, minwidth=35, stretch=False)
+        self.src_tv.pack(expand=True, fill=BOTH)
 
         dst_tv_frame = Frame(mainframe)
         dst_tv_frame.grid(row=1, column=1, sticky='nsew')
@@ -136,9 +135,8 @@ class MapEditor(Frame):
                             rightclick=self._right_click_dst_entry)
         self.dst_tv.heading("#0", text="Directory Structure")
         self.dst_tv.heading("dtype", text="Type")
-        self.dst_tv.column("dtype", width=50, minwidth=35,
-                           stretch=False)
-        self.dst_tv.pack()
+        self.dst_tv.column("dtype", width=50, minwidth=35, stretch=False)
+        self.dst_tv.pack(expand=True, fill=BOTH)
 
         # bottom frame
         bottom_frame = Frame(mainframe)
@@ -155,15 +153,20 @@ class MapEditor(Frame):
         Button(bottom_frame, text='Edit', command=self._edit_map).grid(
             column=4, row=0)
 
-        mainframe.rowconfigure(index=1, weight=1)
-        mainframe.columnconfigure(index=0, weight=1)
-        mainframe.columnconfigure(index=1, weight=1)
-        mainframe.columnconfigure(index=2, weight=1)
+        mainframe.grid_rowconfigure(index=0, weight=0)
+        mainframe.grid_rowconfigure(index=1, weight=1)
+        mainframe.grid_rowconfigure(index=2, weight=0)
+        mainframe.grid_columnconfigure(index=0, weight=1)
+        mainframe.grid_columnconfigure(index=1, weight=1)
+        mainframe.grid_columnconfigure(index=2, weight=0)
 
-        self.grid(column=0, row=0)
+        self.grid(column=0, row=0, sticky='nsew')
 
-        self.rowconfigure(index=0, weight=1)
-        self.columnconfigure(index=0, weight=1)
+        self.grid_rowconfigure(index=0, weight=1)
+        self.grid_columnconfigure(index=0, weight=1)
+
+        self.master.grid_rowconfigure(index=0, weight=1)
+        self.master.grid_columnconfigure(index=0, weight=1)
 
     def _select_src_entry(self, *args):
         pass

@@ -8,6 +8,7 @@ from layer_data import GIMMICKS, LAYER1, LAYER6, MAP_DATA
 from modify_image import apply_mods
 from gimmicks.GimmickHandler import GimmickHandler
 from SpriteHandler import get_sprite
+from draw_movable_blocks import movable_block_image, movable_block_bound
 
 BLOCK_COLOURS = {1: '#000000',
                  2: '#FF0000',
@@ -84,6 +85,7 @@ class MapCanvas(Toplevel):
         self.show_layer4 = BooleanVar(value=False)
         self.show_layer5 = BooleanVar(value=False)
         self.show_layer6 = BooleanVar(value=False)
+        self.show_movable_blocks = BooleanVar(value=False)
 
         # Stage data
         self.stage_data_tiles = dict()
@@ -102,6 +104,10 @@ class MapCanvas(Toplevel):
         self.layer5_tiles = list()
         self.layer6_tiles = list()
         self.layer6_sprites = dict()
+
+        self.movable_block_sprites = dict()
+        self.movable_block_data = dict()
+        self.movable_block_tiles = list()
 
         self._create_widgets()
 
@@ -437,9 +443,16 @@ class MapCanvas(Toplevel):
                     command=self._toggle_layer6).grid(column=0, row=7,
                                                       sticky='w', columnspan=2)
 
+        Checkbutton(toggle_frame,
+                    text='Show Movable Blocks',
+                    variable=self.show_movable_blocks,
+                    command=self._toggle_movable_blocks).grid(column=0, row=8,
+                                                              sticky='w',
+                                                              columnspan=2)
+
         # TODO: move
         Button(toggle_frame, text='Export', command=self._export_map).grid(
-            column=0, row=8)
+            column=0, row=9)
 
         # get map to expand fully
         map_frame.grid_columnconfigure(index=0, weight=1)
@@ -792,6 +805,49 @@ class MapCanvas(Toplevel):
             for ID in self.layer6_tiles:
                 self.canvas.itemconfig(ID, state=HIDDEN)
 
+    def _toggle_movable_blocks(self):
+        # Toggle the visibility of movable blocks
+        if self.show_movable_blocks.get() is True:
+            if len(self.movable_block_data) != 0:
+                for mb_data in self.movable_block_data.values():
+                    for ID in mb_data['ids']:
+                        self.canvas.itemconfig(ID, state=NORMAL)
+            else:
+                for num, block in enumerate(self.stage_data.movable_blocks):
+                    if block.num_blocks != 0:
+                        self.movable_block_data[num] = {'obj': block,
+                                                        'ids': list(),
+                                                        'bounds': None}
+                        mb_imgs = movable_block_image(
+                            block, self.movable_block_sprites)
+                        for i in range(block.num_blocks):
+                            image = mb_imgs[i]
+                            ID = self.canvas.create_image(
+                                32 * block.block_locations[i][0],
+                                32 * (self.height -
+                                      block.block_locations[i][1]),
+                                image=image,
+                                tags='MOVABLEBLOCK_{0}'.format(str(i)),
+                                anchor='sw')
+                            self.movable_block_data[num]['ids'].append(ID)
+                            self.movable_block_tiles.append(ID)
+                        # Also create the bounds rectangle and hide it by
+                        # default
+                        bounds = movable_block_bound(block)
+                        ID = self.canvas.create_rectangle(
+                            32 * bounds[0],
+                            32 * (self.height - bounds[1]),
+                            32 * (bounds[2] + 1),
+                            32 * (self.height - bounds[3] - 1),
+                            fill='', width=3, outline='#FF0000')
+                        self.movable_block_data[num]['bounds'] = ID
+                        self.canvas.itemconfig(ID, state=HIDDEN)
+        else:
+            for mb_data in self.movable_block_data.values():
+                for ID in mb_data['ids']:
+                    self.canvas.itemconfig(ID, state=HIDDEN)
+                self.canvas.itemconfig(mb_data['bounds'], state=HIDDEN)
+
     def button_press(self, event):
         self.current_selection = self.canvas.find_withtag("current")
 
@@ -799,9 +855,20 @@ class MapCanvas(Toplevel):
             return None
         self.current_selection = self.current_selection[0]
 
+        # If we have selected a gimmick, show its information
         if self.current_selection in self.gimmicks:
             self.current_gimmick = self.gimmick_data[self.current_selection]
             self._show_gimmick_info(self.current_gimmick)
+
+        # If we have selected a moavble block, show its bounds
+        if self.current_selection in self.movable_block_tiles:
+            # find which movable block it belongs to
+            for i, mb_data in self.movable_block_data.items():
+                if self.current_selection in mb_data['ids']:
+                    self.canvas.itemconfig(mb_data['bounds'], state=NORMAL)
+                else:
+                    self.canvas.itemconfig(mb_data['bounds'], state=HIDDEN)
+            # TODO: use `i` for something.
 
     def button_release(self, event):
         """ Un-assign the current selection and apply any modifications to

@@ -45,6 +45,26 @@ GIMMICKS = {
              3: {'path': 'images\\Gimmicks\\27_3.png', 'mods': ['rot_270']}}}
 }
 
+# All the push blocks have their own images because eh... why not...
+PUSHBLOCKS = {
+    0: {'path': 'images\\Pushblocks\\0.png'},
+    1: {'path': 'images\\Pushblocks\\1.png'},
+    2: {'path': 'images\\Pushblocks\\2.png'},
+    3: {'path': 'images\\Pushblocks\\3.png'},
+    4: {'path': 'images\\Pushblocks\\4.png'},
+    5: {'path': 'images\\Pushblocks\\5.png'},
+    6: {'path': 'images\\Pushblocks\\6.png'},
+    7: {'path': 'images\\Pushblocks\\7.png'},
+    8: {'path': 'images\\Pushblocks\\8.png'},
+    9: {'path': 'images\\Pushblocks\\9.png'},
+    10: {'path': 'images\\Pushblocks\\10.png'},
+    11: {'path': 'images\\Pushblocks\\11.png'},
+    12: {'path': 'images\\Pushblocks\\12.png'},
+    13: {'path': 'images\\Pushblocks\\13.png'},
+    14: {'path': 'images\\Pushblocks\\14.png'},
+    15: {'path': 'images\\Pushblocks\\15.png'},
+}
+
 LAYER1 = {
     # Sticky walls
     41: {'path': 'images\\Sprites\\43.png', 'mods': ['rot_90']},

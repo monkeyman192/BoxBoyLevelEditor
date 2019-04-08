@@ -280,7 +280,7 @@ class MovableBlock():
             self.block_locations.append(struct.unpack('<ii', fobj.read(0x8)))
 
     def __bytes__(self):
-        _bytes = struct.pack('<i', self.num_blocks)
+        _bytes = struct.pack('<i', len(self.block_locations))
         for data in self.block_locations:
             _bytes += struct.pack('<ii', *data)
         return _bytes
