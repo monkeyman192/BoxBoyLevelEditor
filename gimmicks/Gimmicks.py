@@ -333,16 +333,6 @@ class Gimmick_Shutter(Gimmick):
     def image(self, data):
         return data[self.kind][self.direction]
 
-    """
-    def image(self, data):
-        return {'drawn': [{'rectangle': (self.x, self.y,
-                                         self.x + 32,
-                                         self.y - 32),
-                           'width': 2,
-                           'stipple': 'gray12',
-                           'fill': '#FFFF00'}]}
-    """
-
     @property
     def direction(self):
         return self.param0

@@ -36,6 +36,7 @@ class MapCanvas(Toplevel):
         self.gimmick_handler = GimmickHandler(self.stage_data.gimmick_data)
 
         self.current_gimmick = None
+        self.highlighted_ids = list()
 
         # assign some local variables pulled from the map data
         self.height = len(self.stage_data.map_layout)
@@ -137,7 +138,7 @@ class MapCanvas(Toplevel):
             new_obj.x,
             new_obj.y,
             image=image,
-            tags=('GIMMICK', str(new_obj.wuid)),
+            tags=('GIMMICK', str(new_obj.wuid), 'kind_' + str(new_obj.kind)),
             anchor='sw')
         self.gimmicks.append(ID)
         self.gimmick_data[ID] = new_obj
@@ -545,6 +546,16 @@ class MapCanvas(Toplevel):
                 param_value2.set(getattr(gimmick,
                                          'param{0}'.format(str(i)))[0])
                 param_entry2.config(state=NORMAL)
+        if hasattr(gimmick, 'target_id'):
+            # If the object has a target_id attribute we want to highlight it
+            # for easy visibility
+            target_id = gimmick.target_id
+            if target_id == -1:
+                # Highlight the toggle blocks
+                self._highlight_obj(7, iskind=True)
+            else:
+                # Highlight whatever it is meant to be targeting
+                self._highlight_obj(target_id)
 
     def _toggle_gimmicks(self):
         if self.show_gimmicks.get() is True:
@@ -567,7 +578,8 @@ class MapCanvas(Toplevel):
                                     coords[2], 32 * self.height - coords[3],
                                     activeoutline=ACTIVEOUTLINE,
                                     tags=('GIMMICK', 'IMMOVABLE',
-                                          str(gimmick.wuid),
+                                          'wuid_' + str(gimmick.wuid),
+                                          'kind_' + str(gimmick.kind),
                                           *gimmick.extra_tags),
                                     **drawing_params)
                             elif 'text' in drawing_params:
@@ -576,7 +588,8 @@ class MapCanvas(Toplevel):
                                     position[0] + 5,
                                     32 * self.height - position[1] + 5,
                                     tags=('GIMMICK', 'TEXT',
-                                          str(gimmick.wuid),
+                                          'wuid_' + str(gimmick.wuid),
+                                          'kind_' + str(gimmick.kind),
                                           *gimmick.extra_tags),
                                     **drawing_params,
                                     anchor='nw')
@@ -588,7 +601,9 @@ class MapCanvas(Toplevel):
                                     position[0],
                                     32 * self.height - position[1] + 32,
                                     image=image,
-                                    tags=('GIMMICK', str(gimmick.wuid),
+                                    tags=('GIMMICK',
+                                          'wuid_' + str(gimmick.wuid),
+                                          'kind_' + str(gimmick.kind),
                                           *gimmick.extra_tags),
                                     anchor='sw')
                             self.gimmicks.append(ID)
@@ -599,11 +614,43 @@ class MapCanvas(Toplevel):
                             gimmick.x,
                             32 * self.height - gimmick.y + 32,
                             image=image,
-                            tags=('GIMMICK', str(gimmick.wuid),
+                            tags=('GIMMICK', 'wuid_' + str(gimmick.wuid),
+                                  'kind_' + str(gimmick.kind),
                                   *gimmick.extra_tags),
                             anchor='sw')
                         self.gimmicks.append(ID)
                         self.gimmick_data[ID] = gimmick
+                    # Horizontal shutters have another part rotated and placed
+                    # across from them
+                    if gimmick.kind == 11:
+                        # first, find the location of the other shutter
+                        if gimmick.direction == 1:
+                            left_coord = int(self.canvas.coords(ID)[1])
+                            right_side_ids = self.canvas.find_withtag(
+                                'SHUTTER_R')
+                            closest_x = float('inf')
+                            for ID in right_side_ids:
+                                x, y = self.canvas.coords(ID)
+                                if int(y) == left_coord:
+                                    if x < closest_x:
+                                        closest_x = int(x)
+                            if closest_x == float('inf'):
+                                # If nothing is found just move on
+                                continue
+                            # now we should have the x and y location
+                            img_data = {'path': gimmick_img_data['path'],
+                                        'mods': ['rot_270']}
+                            image = self._get_gimmick_image(img_data)
+                            ID = self.canvas.create_image(
+                                closest_x, left_coord,
+                                image=image,
+                                tags=('GIMMICK',
+                                      'wuid_' + str(gimmick.wuid),
+                                      'kind_' + str(gimmick.kind),
+                                      *gimmick.extra_tags),
+                                anchor='sw')
+                            self.gimmicks.append(ID)
+                            self.gimmick_data[ID] = gimmick
             self.hints_shown = True
         else:
             for ID in self.gimmicks:
@@ -645,6 +692,23 @@ class MapCanvas(Toplevel):
                 image = None
         return image
 
+    def _highlight_obj(self, _id, iskind=False):
+        # un-highlight any currently highlighted objects
+        for ID in self.highlighted_ids:
+            self.canvas.delete(ID)
+        if iskind:
+            _id = 'kind_' + str(_id)
+        else:
+            _id = 'wuid_' + str(_id)
+        # Then highlight everything that needs to be
+        self.highlighted_ids = list()
+        for ID in self.canvas.find_withtag(_id):
+            x, y, = self.canvas.coords(ID)
+            temp_ID = self.canvas.create_rectangle(
+                x, y, x + 32, y - 32,
+                fill='', width=3, outline='#FF0000')
+            self.highlighted_ids.append(temp_ID)
+
     def _draw_layer0(self):
         # Unknown
         pass
@@ -664,16 +728,22 @@ class MapCanvas(Toplevel):
                             continue
                         image = self._get_layer_image(i, 1)
 
+                        extra_tags = tuple()
+                        if i == 66:
+                            # We give the right side of the shutter sprite
+                            # an extra tag to make it easy to find later.
+                            extra_tags = ('SHUTTER_R',)
+
                         if image is None:
                             ID = self.canvas.create_rectangle(
                                 32 * x, 32 * y,
                                 32 * (x + 1), 32 * (y + 1),
-                                fill='#000000', tags='LAYER1',
+                                fill='#000000', tags=('LAYER1', *extra_tags),
                                 activeoutline=ACTIVEOUTLINE)
                         else:
                             ID = self.canvas.create_image(
                                 32 * x, 32 * (y + 1),
-                                image=image, tags='LAYER1',
+                                image=image, tags=('LAYER1', *extra_tags),
                                 anchor='sw')
                         self.layer1_tiles.append(ID)
             for ID in self.stage_data_tiles:
