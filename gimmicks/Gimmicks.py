@@ -25,6 +25,8 @@ def gimmick_factory(gimmick_bytes):
         return Gimmick_ToggleBlock(gimmick_bytes)
     if kind == 8:
         return Gimmick_BreakBlock(gimmick_bytes)
+    if kind == 11:
+        return Gimmick_Shutter(gimmick_bytes)
     if kind == 13:
         return Gimmick_HelpArea(gimmick_bytes)
     if kind == 17:
@@ -60,6 +62,7 @@ class Gimmick():
         self.load_parameters(fobj)
 
         self.name = 'Unknown'
+        self.extra_tags = tuple()
 
     @staticmethod
     def new(wuid, kind, x, y, group, appearance=0):
@@ -319,6 +322,44 @@ class Gimmick_BreakBlock(Gimmick):
         self.name = 'BreakBlock'
 
 
+class Gimmick_Shutter(Gimmick):
+    """ Gimmick # 11 """
+    def __init__(self, fobj):
+        self.param_names = ('direction', 'starts_open', 'param2', 'param3',
+                            'param4', 'param5')
+        super(Gimmick_Shutter, self).__init__(fobj)
+        self.name = 'Shutter'
+
+    def image(self, data):
+        return data[self.kind][self.direction]
+
+    """
+    def image(self, data):
+        return {'drawn': [{'rectangle': (self.x, self.y,
+                                         self.x + 32,
+                                         self.y - 32),
+                           'width': 2,
+                           'stipple': 'gray12',
+                           'fill': '#FFFF00'}]}
+    """
+
+    @property
+    def direction(self):
+        return self.param0
+
+    @direction.setter
+    def direction(self, value):
+        self.param0 = value
+
+    @property
+    def starts_open(self):
+        return self.param1
+
+    @starts_open.setter
+    def starts_open(self, value):
+        self.param1 = value
+
+
 class Gimmick_HelpArea(Gimmick):
     """ Gimmick # 13 """
     def __init__(self, fobj):
@@ -328,6 +369,7 @@ class Gimmick_HelpArea(Gimmick):
         self.param_fmts = ('<hh', '<hh', '<hh', '<hh', '<i', '<hh')
         super(Gimmick_HelpArea, self).__init__(fobj)
         self.name = 'Hint Area'
+        self.extra_tags = ('HINT',)
 
     def image(self, data):
         return {'drawn': [{'rectangle': (self.position[0], self.position[1],

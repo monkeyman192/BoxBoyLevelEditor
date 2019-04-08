@@ -331,7 +331,9 @@ kind:
  8 - Break block
  9 - Something to do with a fixed camera position
 10 - NONE
-11 - Raising door
+11 - Toggle Door
+ param0 : direction (?)
+ param1 : already open (?)
 12 - ???
 13 - Hint Area
  param0/param1: an area? (mRect)

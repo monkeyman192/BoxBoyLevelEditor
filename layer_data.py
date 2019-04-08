@@ -19,6 +19,8 @@ GIMMICKS = {
     7: {0: {'path': 'images\\Gimmicks\\07_ToggleBlock_Inactive.png'},
         1: {'path': 'images\\Gimmicks\\07_ToggleBlock_Active.png'}},
     8: {'path': 'images\\Gimmicks\\08_BreakBlock.png'},
+    11: {0: {'path': 'images\\Gimmicks\\11_Shutter.png'},
+         1: {'path': 'images\\Gimmicks\\11_Shutter.png', 'mods': ['rot_90']}},
     17: {'path': 'images\\Gimmicks\\17_FallSplinter.png'},
     22: {0: {'path': 'images\\Gimmicks\\22_Battery_Plus.png'},
          1: {'path': 'images\\Gimmicks\\22_Battery_Minus.png'}},
@@ -60,6 +62,12 @@ LAYER1 = {
     54: {'path': 'images\\Sprites\\43.png', 'mods': ['rot_270']},
     55: {'path': 'images\\Sprites\\55.png'},
     56: {'path': 'images\\Sprites\\56.png'},
+    # Half blocks
+    58: {'path': 'images\\Sprites\\58.png'},
+    63: {'path': 'images\\Sprites\\58.png', 'mods': ['rot_180']},
+    65: {'path': 'images\\Sprites\\58.png', 'mods': ['rot_90']},
+    66: {'path': 'images\\Sprites\\58.png', 'mods': ['rot_270']},
+    # More sticky walls
     73: {'path': 'images\\Sprites\\73.png'},
     74: {'path': 'images\\Sprites\\73.png', 'mods': ['rot_270']},
     75: {'path': 'images\\Sprites\\73.png', 'mods': ['rot_90']},
@@ -68,7 +76,9 @@ LAYER1 = {
     78: {'path': 'images\\Sprites\\77.png', 'mods': ['rot_90']},
     79: {'path': 'images\\Sprites\\77.png', 'mods': ['rot_270']},
     80: {'path': 'images\\Sprites\\77.png', 'mods': ['rot_180']},
+    # Greyed out Qbby
     100: {'path': 'images\\Sprites\\100.png'},
+    # Spikes
     300: {'path': 'images\\Sprites\\300.png'},
     301: {'path': 'images\\Sprites\\301.png'},
     302: {'path': 'images\\Sprites\\302.png'},

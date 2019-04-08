@@ -16,6 +16,16 @@ BLOCK_COLOURS = {1: '#000000',
 
 ACTIVEOUTLINE = '#FF5000'
 
+"""
+Tag information:
+The base map data has the tag 'MAP'.
+Each layer has it's own individual tag:
+'LAYER0', through to 'LAYER6'
+Gimmicks have two tags.
+'GIMMICK', and the wuid of the gimmick itself.
+This way gimmicks that have mutliple things to display all have the same tag.
+"""
+
 
 class MapCanvas(Toplevel):
     def __init__(self, master, stage_data=None):
@@ -110,6 +120,7 @@ class MapCanvas(Toplevel):
         self.moving_item = False
         self.curr_item_location = None
         self.add_item_location = None
+        self.hints_shown = False
 
     def _add_gimmick(self, kind):
         # Toggle the gimmicks on First
@@ -126,6 +137,7 @@ class MapCanvas(Toplevel):
             new_obj.x,
             new_obj.y,
             image=image,
+            tags=('GIMMICK', str(new_obj.wuid)),
             anchor='sw')
         self.gimmicks.append(ID)
         self.gimmick_data[ID] = new_obj
@@ -208,12 +220,12 @@ class MapCanvas(Toplevel):
             ID = self.canvas.create_rectangle(
                 32 * x, 32 * y,
                 32 * (x + 1), 32 * (y + 1),
-                fill='#222222',
+                fill='#222222', tags='LAYER1',
                 activeoutline=ACTIVEOUTLINE)
         else:
             ID = self.canvas.create_image(
                 32 * x, 32 * (y + 1),
-                image=image,
+                image=image, tags='LAYER1',
                 anchor='sw')
         self.layer1_tiles.append(ID)
 
@@ -237,12 +249,17 @@ class MapCanvas(Toplevel):
     def _assign_number_to_layer(self):
         print('Sorry, not implemented yet...')
 
-    def _hide_hint_gimmicks(self):
-        print('Sorry, not implemented yet...')
-
-    def test(self, new_val):
-        print(new_val)
-        return True
+    def _toggle_hint_gimmicks(self):
+        # get a list of all the ID's relating to HINT objects
+        hint_ids = self.canvas.find_withtag('HINT')
+        if self.hints_shown:
+            for ID in hint_ids:
+                self.canvas.itemconfig(ID, state=HIDDEN)
+            self.hints_shown = False
+        else:
+            for ID in hint_ids:
+                self.canvas.itemconfig(ID, state=NORMAL)
+            self.hints_shown = True
 
     def _create_widgets(self):
         map_frame = Frame(self)
@@ -473,8 +490,8 @@ class MapCanvas(Toplevel):
             label='Assign number',
             command=self._assign_number_to_layer)
         self.popup_menu.add_command(
-            label='Hide hints',
-            command=self._hide_hint_gimmicks)
+            label='Toggle hint visibility',
+            command=self._toggle_hint_gimmicks)
 
     def _draw_map_data(self):
         for y, row in enumerate(self.stage_data.map_layout):
@@ -484,14 +501,13 @@ class MapCanvas(Toplevel):
                         image = self._get_layer_image(i, 'map')
                         ID = self.canvas.create_image(
                             32 * x, 32 * (y + 1),
-                            image=image,
-                            anchor='sw')
+                            image=image, tags='MAP', anchor='sw')
                     else:
                         ID = self.canvas.create_rectangle(
                             32 * x, 32 * y,
                             32 * (x + 1), 32 * (y + 1),
                             fill=BLOCK_COLOURS.get(i, '#AAAAAA'),
-                            activeoutline=ACTIVEOUTLINE)
+                            tags='MAP', activeoutline=ACTIVEOUTLINE)
                     self.stage_data_tiles[ID] = (x, y)
         self.canvas.config(scrollregion=self.canvas.bbox(ALL))
 
@@ -550,35 +566,49 @@ class MapCanvas(Toplevel):
                                     coords[0], 32 * self.height - coords[1],
                                     coords[2], 32 * self.height - coords[3],
                                     activeoutline=ACTIVEOUTLINE,
+                                    tags=('GIMMICK', 'IMMOVABLE',
+                                          str(gimmick.wuid),
+                                          *gimmick.extra_tags),
                                     **drawing_params)
                             elif 'text' in drawing_params:
                                 position = drawing_params.pop('position')
-                                self.canvas.create_text(
+                                ID = self.canvas.create_text(
                                     position[0] + 5,
                                     32 * self.height - position[1] + 5,
+                                    tags=('GIMMICK', 'TEXT',
+                                          str(gimmick.wuid),
+                                          *gimmick.extra_tags),
                                     **drawing_params,
                                     anchor='nw')
                             elif 'image' in drawing_params:
                                 image = self._get_gimmick_image(
                                     drawing_params['image'])
                                 position = drawing_params['position']
-                                self.canvas.create_image(
+                                ID = self.canvas.create_image(
                                     position[0],
                                     32 * self.height - position[1] + 32,
                                     image=image,
+                                    tags=('GIMMICK', str(gimmick.wuid),
+                                          *gimmick.extra_tags),
                                     anchor='sw')
+                            self.gimmicks.append(ID)
+                            self.gimmick_data[ID] = gimmick
 
                     else:
                         ID = self.canvas.create_image(
                             gimmick.x,
                             32 * self.height - gimmick.y + 32,
                             image=image,
+                            tags=('GIMMICK', str(gimmick.wuid),
+                                  *gimmick.extra_tags),
                             anchor='sw')
-                    self.gimmicks.append(ID)
-                    self.gimmick_data[ID] = gimmick
+                        self.gimmicks.append(ID)
+                        self.gimmick_data[ID] = gimmick
+            self.hints_shown = True
         else:
             for ID in self.gimmicks:
                 self.canvas.itemconfig(ID, state=HIDDEN)
+            self.hints_shown = False
 
     def _get_gimmick_image(self, gimmick_img_data):
         if 'drawn' in gimmick_img_data:
@@ -638,17 +668,21 @@ class MapCanvas(Toplevel):
                             ID = self.canvas.create_rectangle(
                                 32 * x, 32 * y,
                                 32 * (x + 1), 32 * (y + 1),
-                                fill='#222222',
+                                fill='#000000', tags='LAYER1',
                                 activeoutline=ACTIVEOUTLINE)
                         else:
                             ID = self.canvas.create_image(
                                 32 * x, 32 * (y + 1),
-                                image=image,
+                                image=image, tags='LAYER1',
                                 anchor='sw')
                         self.layer1_tiles.append(ID)
+            for ID in self.stage_data_tiles:
+                self.canvas.itemconfig(ID, state=HIDDEN)
         else:
             for ID in self.layer1_tiles:
                 self.canvas.itemconfig(ID, state=HIDDEN)
+            for ID in self.stage_data_tiles:
+                self.canvas.itemconfig(ID, state=NORMAL)
 
     def _draw_layer2(self):
         # Lines
@@ -681,7 +715,7 @@ class MapCanvas(Toplevel):
                             image = self._get_layer_image(i, 6)
                             ID = self.canvas.create_image(
                                 32 * x, 32 * (y + 1),
-                                image=image,
+                                image=image, tags='LAYER6',
                                 anchor='sw')
                             self.layer6_tiles.append(ID)
         else:
@@ -721,7 +755,9 @@ class MapCanvas(Toplevel):
         else:
             x = 16 * (self.canvas.canvasx(event.x) // 16)
             y = 16 * (self.canvas.canvasy(event.y) // 16)
-        if (x, y) != self.curr_item_location:
+        if ((x, y) != self.curr_item_location and
+                'IMMOVABLE' not in self.canvas.gettags(
+                    self.current_selection)):
             self.moving_item = True
             if self.canvas.type(self.current_selection) == 'image':
                 self.canvas.coords(self.current_selection, [x, y])
