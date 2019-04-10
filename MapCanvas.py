@@ -8,7 +8,7 @@ from layer_data import GIMMICKS, LAYER1, LAYER6, MAP_DATA
 from modify_image import apply_mods
 from gimmicks.GimmickHandler import GimmickHandler
 from SpriteHandler import get_sprite
-from pushblock_handler import pushblock_image, pushblock_bound
+from pushblock_handler import pushblock_image, update_bounds
 
 BLOCK_COLOURS = {1: '#000000',
                  2: '#FF0000',
@@ -61,7 +61,7 @@ class MapCanvas(Toplevel):
 
         self.gimmick_wuid = IntVar()
         self.gimmick_group = IntVar()
-        self.pushbox_group = IntVar()
+        self.pushblock_group = IntVar()
 
         # Values for the param entries.
         # There are 2 values for each in case the value is packed like '<hh'
@@ -108,7 +108,7 @@ class MapCanvas(Toplevel):
 
         self.pushblock_sprites = dict()
         self.pushblock_data = dict()
-        self.pushblock_tiles = list()
+        self.pushblock_tiles = dict()
 
         self._create_widgets()
 
@@ -180,17 +180,10 @@ class MapCanvas(Toplevel):
                 self.pushblock_data[group]['ids'].append(ID)
                 # remove the old bounds image
                 self.canvas.delete(self.pushblock_data[group]['bounds'])
-            self.pushblock_tiles.append(ID)
+            self.pushblock_tiles[ID] = image
 
-            # Update the bounds of the puch box
-            bounds = pushblock_bound(block)
-            ID = self.canvas.create_rectangle(
-                32 * bounds[0],
-                32 * (self.height - bounds[1]),
-                32 * (bounds[2] + 1),
-                32 * (self.height - bounds[3] - 1),
-                fill='', width=3, outline='#FF0000')
-            self.pushblock_data[group]['bounds'] = ID
+            # Update the bounds of the push box
+            ID = update_bounds(block, self.pushblock_data[group], self)
             if self.current_selection is None:
                 self.canvas.itemconfig(ID, state=HIDDEN)
             else:
@@ -203,7 +196,6 @@ class MapCanvas(Toplevel):
         # TODO: redraw sprites for that group
 
     def _add_terrain(self, kind):
-        # TODO: Automatcically add sprites too?
         x = self.add_item_location[0] // 32
         y = self.add_item_location[1] // 32
         ID = self.canvas.create_rectangle(
@@ -456,7 +448,7 @@ class MapCanvas(Toplevel):
                                                          columnspan=2)
         Label(pushblock_frame, text='Group:').grid(column=0, row=1)
         Entry(pushblock_frame,
-              textvariable=self.pushbox_group,
+              textvariable=self.pushblock_group,
               validate=ALL,
               width=5,
               state=DISABLED,
@@ -900,17 +892,11 @@ class MapCanvas(Toplevel):
                                 tags='PUSHBLOCK_{0}'.format(str(i)),
                                 anchor='sw')
                             self.pushblock_data[num]['ids'].append(ID)
-                            self.pushblock_tiles.append(ID)
+                            self.pushblock_tiles[ID] = image
                         # Also create the bounds rectangle and hide it by
                         # default
-                        bounds = pushblock_bound(block)
-                        ID = self.canvas.create_rectangle(
-                            32 * bounds[0],
-                            32 * (self.height - bounds[1]),
-                            32 * (bounds[2] + 1),
-                            32 * (self.height - bounds[3] - 1),
-                            fill='', width=3, outline='#FF0000')
-                        self.pushblock_data[num]['bounds'] = ID
+                        ID = update_bounds(block, self.pushblock_data[num],
+                                           self)
                         self.canvas.itemconfig(ID, state=HIDDEN)
         else:
             for pb_data in self.pushblock_data.values():
@@ -925,40 +911,82 @@ class MapCanvas(Toplevel):
             return None
         self.current_selection = self.current_selection[0]
 
+        self.curr_item_location = self.canvas.coords(self.current_selection)
+
         # If we have selected a gimmick, show its information
         if self.current_selection in self.gimmicks:
             self.current_gimmick = self.gimmick_data[self.current_selection]
             self._show_gimmick_info(self.current_gimmick)
 
         # If we have selected a moavble block, show its bounds
-        if self.current_selection in self.pushblock_tiles:
+        if self.current_selection in self.pushblock_tiles.keys():
             # find which movable block it belongs to
             for i, pb_data in self.pushblock_data.items():
                 if self.current_selection in pb_data['ids']:
                     self.canvas.itemconfig(pb_data['bounds'], state=NORMAL)
-                    self.pushbox_group.set(i)
+                    self.pushblock_group.set(i)
                 else:
                     self.canvas.itemconfig(pb_data['bounds'], state=HIDDEN)
         else:
-            self.pushbox_group.set(0)
+            self.pushblock_group.set(0)
 
     def button_release(self, event):
         """ Un-assign the current selection and apply any modifications to
         the moved object. """
         if not self.moving_item:
+            self.curr_item_location = None
             return
         if self.current_selection in self.gimmicks:
             gimmick = self.gimmick_data[self.current_selection]
             gimmick.x = int(self.curr_item_location[0])
             gimmick.y = 32 * self.height - int(self.curr_item_location[1]) + 32
+        # redraw the sprites in the push block if needed
+        if self.current_selection in self.pushblock_tiles.keys():
+            pb_group = self.pushblock_group.get()
+            pushblock_data = self.pushblock_data[pb_group]
+            pushblock = pushblock_data['obj']
+            # Check if the pushblock has actually changed position.
+            # If it has, check if any boxes need to be redrawn.
+            # We only need to actuall redraw the sprites which have changed.
+            loc = pushblock_data['ids'].index(self.current_selection)
+            new_position = (
+                int(self.curr_item_location[0] // 32),
+                self.height - int(self.curr_item_location[1] // 32))
+            if new_position != pushblock.block_locations[loc]:
+                pushblock.block_locations[loc] = new_position
+                pb_imgs = pushblock_image(pushblock, self.pushblock_sprites)
+                for i, ID in enumerate(pushblock_data['ids']):
+                    image = pb_imgs[i]
+                    if image != self.pushblock_tiles[ID]:
+                        # remove the old image
+                        self.canvas.delete(ID)
+                        # Add a new one and replace the old data
+                        new_ID = self.canvas.create_image(
+                            32 * pushblock.block_locations[i][0],
+                            32 * (self.height -
+                                  pushblock.block_locations[i][1]),
+                            image=image,
+                            tags='PUSHBLOCK_{0}'.format(str(i)),
+                            anchor='sw')
+                        self.pushblock_data[pb_group]['ids'][i] = new_ID
+                        del self.pushblock_tiles[ID]
+                        self.pushblock_tiles[new_ID] = image
+                # Update the bounds
+                old_ID = self.pushblock_data[pb_group]['bounds']
+                ID = update_bounds(pushblock, self.pushblock_data[pb_group],
+                                   self)
+                self.canvas.delete(old_ID)
+                self.canvas.itemconfig(ID, state=NORMAL)
         # reset the current selection to be None
         self.current_selection = None
+        self.curr_item_location = None
 
     def drag_block(self, event):
         if self.current_selection is None:
             return
         if (self.current_selection in self.layer1_tiles or
-                self.current_selection in self.stage_data_tiles):
+                self.current_selection in self.stage_data_tiles or
+                self.current_selection in self.pushblock_tiles.keys()):
             x = 32 * (self.canvas.canvasx(event.x) // 32)
             y = 32 * (self.canvas.canvasy(event.y) // 32)
         else:

@@ -19,6 +19,19 @@ def pushblock_bound(pushblock):
     ]
 
 
+def update_bounds(pushblock, data, parent):
+    bounds = pushblock_bound(pushblock)
+    ID = parent.canvas.create_rectangle(
+        32 * bounds[0],
+        32 * (parent.height - bounds[1]),
+        32 * (bounds[2] + 1),
+        32 * (parent.height - bounds[3] - 1),
+        fill='', width=3, outline='#FF0000')
+    data['bounds'] = ID
+
+    return ID
+
+
 def pushblock_image(pushblock, existing_sprites):
     """ Return the list of sprites used to draw the pushblock"""
 
