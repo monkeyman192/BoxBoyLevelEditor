@@ -14,7 +14,7 @@ class BBMap():
             self._read_header(fobj)
             self._read_map_layout(fobj)
             self._read_moving_platform_data(fobj)
-            self._read_movable_blocks(fobj)
+            self._read_pushblocks(fobj)
             self._read_map_layers(fobj)
             self._read_gimmick_data(fobj)
             # skip whatever the next pointer goes to as it is always empty...
@@ -60,7 +60,7 @@ class BBMap():
             self.map_layout = list()
             for y in range(self.height):
                 self.map_layout.append(list())
-                for x in range(self.width):
+                for _ in range(self.width):
                     self.map_layout[y].append(read_int32(fobj))
             self.map_layout = self.map_layout[::-1]
 
@@ -84,7 +84,7 @@ class BBMap():
 
     def _read_moving_platform_data(self, fobj):
         self.moving_platforms = list()
-        for i in range(0x14):
+        for _ in range(0x14):
             with Pointer(fobj):
                 self.moving_platforms.append(MovingPlatform(fobj))
 
@@ -100,21 +100,21 @@ class BBMap():
     def _write_moving_platform_data(self, data, mp):
         data.write(bytes(mp))
 
-    def _read_movable_blocks(self, fobj):
-        self.movable_blocks = list()
-        for i in range(0x8):
+    def _read_pushblocks(self, fobj):
+        self.pushblocks = list()
+        for _ in range(0x8):
             with Pointer(fobj):
-                self.movable_blocks.append(MovableBlock(fobj))
+                self.pushblocks.append(PushBlock(fobj))
 
-    def _write_movable_blocks_pointers(self):
-        for mb in self.movable_blocks:
+    def _write_pushblocks_pointers(self):
+        for pb in self.pushblocks:
             p = Pointer(self._bytes)
             p.assign_data(
-                lambda _data, mb=mb: self._write_movable_blocks(_data, mb))
+                lambda _data, pb=pb: self._write_pushblocks(_data, pb))
             self.pointer_data['headers'].append(p)
             write_int32(self._bytes, 0)
 
-    def _write_movable_blocks(self, data, mb):
+    def _write_pushblocks(self, data, mb):
         data.write(bytes(mb))
 
     def _read_map_layers(self, fobj):
@@ -127,7 +127,7 @@ class BBMap():
                 with Pointer(fobj):
                     for y in range(self.height):
                         data.append(list())
-                        for x in range(self.width):
+                        for _ in range(self.width):
                             data[y].append(read_int32(fobj))
             # flip the data verically
             data = data[::-1]
@@ -159,7 +159,7 @@ class BBMap():
         self.gimmick_data = list()
         with Pointer(fobj):
             count = read_int32(fobj)
-            for i in range(count):
+            for _ in range(count):
                 gimmick_bytes = BytesIO(fobj.read(0x30))
                 self.gimmick_data.append(gimmick_factory(gimmick_bytes))
 
@@ -178,7 +178,7 @@ class BBMap():
         self.moving_platform_paths = list()
         with Pointer(fobj):
             count = read_int32(fobj)
-            for i in range(count):
+            for _ in range(count):
                 with Pointer(fobj):
                     self.moving_platform_paths.append(MovingPlatformPath(fobj))
 
@@ -211,7 +211,7 @@ class BBMap():
         self._write_header()
         self._write_map_layout_pointer()
         self._write_moving_platform_data_pointers()
-        self._write_movable_blocks_pointers()
+        self._write_pushblocks_pointers()
         self._write_map_layers_pointer()
         self._write_gimmick_data_pointer()
 
@@ -245,7 +245,7 @@ class MovingPlatform():
         self.x_end, self.y_end = struct.unpack('<ii', fobj.read(0x8))
         self.num_blocks = read_int32(fobj)
         self.data = list()
-        for i in range(self.num_blocks):
+        for _ in range(self.num_blocks):
             self.data.append(struct.unpack('<ii', fobj.read(0x8)))
 
     def __bytes__(self):
@@ -262,7 +262,7 @@ class MovingPlatformPath():
     def __init__(self, fobj):
         count = read_int32(fobj)
         self.data = list()
-        for i in range(count):
+        for _ in range(count):
             self.data.append(struct.unpack('<iiiiiiii', fobj.read(0x20)))
 
     def __bytes__(self):
@@ -272,11 +272,11 @@ class MovingPlatformPath():
         return _bytes
 
 
-class MovableBlock():
+class PushBlock():
     def __init__(self, fobj):
         self.num_blocks = read_int32(fobj)
         self.block_locations = list()
-        for i in range(self.num_blocks):
+        for _ in range(self.num_blocks):
             self.block_locations.append(struct.unpack('<ii', fobj.read(0x8)))
 
     def __bytes__(self):

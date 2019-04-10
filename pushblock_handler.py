@@ -1,0 +1,57 @@
+from PIL import Image, ImageTk
+
+from layer_data import PUSHBLOCKS
+
+
+def pushblock_bound(pushblock):
+    """ Return the bounds of a pushblock
+
+    Returns
+    -------
+    tuple
+        (x_min, y_min, x_max, y_max)
+    """
+    return [
+        min(loc[0] for loc in pushblock.block_locations),
+        min(loc[1] for loc in pushblock.block_locations),
+        max(loc[0] for loc in pushblock.block_locations),
+        max(loc[1] for loc in pushblock.block_locations),
+    ]
+
+
+def pushblock_image(pushblock, existing_sprites):
+    """ Return the list of sprites used to draw the pushblock"""
+
+    if pushblock is None:
+        # Return just the solid block
+        if 15 in existing_sprites:
+            return existing_sprites[15]
+        img = Image.open(PUSHBLOCKS[15]['path'])
+        image = ImageTk.PhotoImage(img)
+        existing_sprites[15] = image
+        return image
+
+    images = list()
+
+    # bounds: x_min, x_max | y_min, y_max
+    # First, we need to determine what sprite each location has
+    for loc in pushblock.block_locations:
+        ID = [
+            (loc[0], loc[1] + 1) not in pushblock.block_locations,  # N
+            (loc[0] + 1, loc[1]) not in pushblock.block_locations,  # E
+            (loc[0], loc[1] - 1) not in pushblock.block_locations,  # S
+            (loc[0] - 1, loc[1]) not in pushblock.block_locations,  # W
+        ]
+        # I am representing the image ID as a number based on whether each face
+        # (N, E, S, W in that order) as closed off (1) or not (0).
+        # Hence the binary representation (converted to base 10...)
+        image_id = ID[0] * 8 + ID[1] * 4 + ID[2] * 2 + ID[3]
+        if image_id in existing_sprites:
+            images.append(existing_sprites[image_id])
+        else:
+            img = Image.open(PUSHBLOCKS[image_id]['path'])
+            image = ImageTk.PhotoImage(img)
+            images.append(image)
+            existing_sprites[image_id] = image
+
+    return images

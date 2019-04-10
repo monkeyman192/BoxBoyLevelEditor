@@ -8,7 +8,7 @@ from layer_data import GIMMICKS, LAYER1, LAYER6, MAP_DATA
 from modify_image import apply_mods
 from gimmicks.GimmickHandler import GimmickHandler
 from SpriteHandler import get_sprite
-from draw_movable_blocks import movable_block_image, movable_block_bound
+from pushblock_handler import pushblock_image, pushblock_bound
 
 BLOCK_COLOURS = {1: '#000000',
                  2: '#FF0000',
@@ -61,6 +61,7 @@ class MapCanvas(Toplevel):
 
         self.gimmick_wuid = IntVar()
         self.gimmick_group = IntVar()
+        self.pushbox_group = IntVar()
 
         # Values for the param entries.
         # There are 2 values for each in case the value is packed like '<hh'
@@ -85,7 +86,7 @@ class MapCanvas(Toplevel):
         self.show_layer4 = BooleanVar(value=False)
         self.show_layer5 = BooleanVar(value=False)
         self.show_layer6 = BooleanVar(value=False)
-        self.show_movable_blocks = BooleanVar(value=False)
+        self.show_pushblocks = BooleanVar(value=False)
 
         # Stage data
         self.stage_data_tiles = dict()
@@ -105,9 +106,9 @@ class MapCanvas(Toplevel):
         self.layer6_tiles = list()
         self.layer6_sprites = dict()
 
-        self.movable_block_sprites = dict()
-        self.movable_block_data = dict()
-        self.movable_block_tiles = list()
+        self.pushblock_sprites = dict()
+        self.pushblock_data = dict()
+        self.pushblock_tiles = list()
 
         self._create_widgets()
 
@@ -151,10 +152,55 @@ class MapCanvas(Toplevel):
         self.canvas.itemconfig(ID, state=NORMAL)
 
     def _add_gravity(self, direction):
-        """ Add a gravity tile """
+        """ Add a gravity tile. """
         if not self.show_layer6.get():
             self.show_layer6.set(True)
             self._toggle_layer6()
+
+    def _add_pushblock(self, group):
+        """ Add a pushblock in the specified group. """
+        x = self.add_item_location[0] // 32
+        y = self.height - self.add_item_location[1] // 32 - 1
+        block = self.stage_data.pushblocks[group]
+        if (x, y) not in block.block_locations:
+            block.block_locations.append((x, y))
+            block.num_blocks += 1
+            image = pushblock_image(None, self.pushblock_sprites)
+            ID = self.canvas.create_image(
+                32 * x,
+                32 * (self.height - y),
+                image=image,
+                tags='PUSHBLOCK_{0}'.format(str(group)),
+                anchor='sw')
+            # If the pushblock group doesn't already exist, add it.
+            if group not in self.pushblock_data:
+                self.pushblock_data[group] = dict()
+                self.pushblock_data[group]['ids'] = [ID]
+            else:
+                self.pushblock_data[group]['ids'].append(ID)
+                # remove the old bounds image
+                self.canvas.delete(self.pushblock_data[group]['bounds'])
+            self.pushblock_tiles.append(ID)
+
+            # Update the bounds of the puch box
+            bounds = pushblock_bound(block)
+            ID = self.canvas.create_rectangle(
+                32 * bounds[0],
+                32 * (self.height - bounds[1]),
+                32 * (bounds[2] + 1),
+                32 * (self.height - bounds[3] - 1),
+                fill='', width=3, outline='#FF0000')
+            self.pushblock_data[group]['bounds'] = ID
+            if self.current_selection is None:
+                self.canvas.itemconfig(ID, state=HIDDEN)
+            else:
+                if 'PUSHBLOCK_{0}'.format(str(group)) in self.canvas.gettags(
+                        self.current_selection):
+                    self.canvas.itemconfig(ID, state=NORMAL)
+                else:
+                    self.canvas.itemconfig(ID, state=HIDDEN)
+
+        # TODO: redraw sprites for that group
 
     def _add_terrain(self, kind):
         # TODO: Automatcically add sprites too?
@@ -283,12 +329,12 @@ class MapCanvas(Toplevel):
         ysb.grid(column=1, row=0, sticky='ns')
 
         info_frame = Frame(self)
-        info_frame.grid(column=1, row=0)
+        info_frame.grid(column=1, row=0, sticky='ew')
 
         # Info frame to modify map properties
 
         map_info_frame = Frame(info_frame, relief=RIDGE, bd=2)
-        map_info_frame.grid(column=0, row=0)
+        map_info_frame.grid(column=0, row=0, sticky='ew')
 
         Label(map_info_frame, text='Number of boxes:').grid(column=0, row=0,
                                                             sticky='w')
@@ -311,7 +357,7 @@ class MapCanvas(Toplevel):
         # Frame to edit properties of the currently selected gimmick
 
         gimmick_edit_frame = Frame(info_frame, relief=RIDGE, bd=2)
-        gimmick_edit_frame.grid(column=0, row=1)
+        gimmick_edit_frame.grid(column=0, row=1, sticky='ew')
 
         Label(gimmick_edit_frame, textvariable=self.gimmick_type_name).grid(
             column=0, row=0, sticky='w', columnspan=3)
@@ -401,10 +447,26 @@ class MapCanvas(Toplevel):
                                    textvariable=self.param5_value_2)
         self.param5_entry2.grid(column=2, row=8)
 
+        # Frame to modify pushblock info
+
+        pushblock_frame = Frame(info_frame, relief=RIDGE, bd=2)
+        pushblock_frame.grid(column=0, row=2, sticky='ew')
+
+        Label(pushblock_frame, text='Pushbox Info').grid(column=0, row=0,
+                                                         columnspan=2)
+        Label(pushblock_frame, text='Group:').grid(column=0, row=1)
+        Entry(pushblock_frame,
+              textvariable=self.pushbox_group,
+              validate=ALL,
+              width=5,
+              state=DISABLED,
+              validatecommand=(self._validate_check_int, '%P')).grid(column=1,
+                                                                     row=1)
+
         # Frame to toggle the visible layers
 
         toggle_frame = Frame(info_frame, relief=RIDGE, bd=2)
-        toggle_frame.grid(column=0, row=2)
+        toggle_frame.grid(column=0, row=3, sticky='ew')
 
         Checkbutton(toggle_frame,
                     text='Show Gimmicks',
@@ -444,11 +506,11 @@ class MapCanvas(Toplevel):
                                                       sticky='w', columnspan=2)
 
         Checkbutton(toggle_frame,
-                    text='Show Movable Blocks',
-                    variable=self.show_movable_blocks,
-                    command=self._toggle_movable_blocks).grid(column=0, row=8,
-                                                              sticky='w',
-                                                              columnspan=2)
+                    text='Show Pushblocks',
+                    variable=self.show_pushblocks,
+                    command=self._toggle_pushblocks).grid(column=0, row=8,
+                                                          sticky='w',
+                                                          columnspan=2)
 
         # TODO: move
         Button(toggle_frame, text='Export', command=self._export_map).grid(
@@ -499,6 +561,14 @@ class MapCanvas(Toplevel):
                                       command=lambda: self._add_gravity(2))
         self.gravity_menu.add_command(label='Right',
                                       command=lambda: self._add_gravity(3))
+        # Add pushblock cascade
+        self.pushblock_menu = Menu(self.popup_menu, tearoff=0)
+        self.popup_menu.add_cascade(label='Add Pushblock',
+                                    menu=self.pushblock_menu)
+        for i in range(8):
+            self.pushblock_menu.add_command(
+                label='Group {0}'.format(i),
+                command=lambda i=i: self._add_pushblock(i))
         # Add menu to allow for specifying a specific value in any layer
         self.popup_menu.add_command(
             label='Assign number',
@@ -805,48 +875,48 @@ class MapCanvas(Toplevel):
             for ID in self.layer6_tiles:
                 self.canvas.itemconfig(ID, state=HIDDEN)
 
-    def _toggle_movable_blocks(self):
-        # Toggle the visibility of movable blocks
-        if self.show_movable_blocks.get() is True:
-            if len(self.movable_block_data) != 0:
-                for mb_data in self.movable_block_data.values():
-                    for ID in mb_data['ids']:
+    def _toggle_pushblocks(self):
+        # Toggle the visibility of pushblocks
+        if self.show_pushblocks.get() is True:
+            if len(self.pushblock_data) != 0:
+                for pb_data in self.pushblock_data.values():
+                    for ID in pb_data['ids']:
                         self.canvas.itemconfig(ID, state=NORMAL)
             else:
-                for num, block in enumerate(self.stage_data.movable_blocks):
+                for num, block in enumerate(self.stage_data.pushblocks):
                     if block.num_blocks != 0:
-                        self.movable_block_data[num] = {'obj': block,
-                                                        'ids': list(),
-                                                        'bounds': None}
-                        mb_imgs = movable_block_image(
-                            block, self.movable_block_sprites)
+                        self.pushblock_data[num] = {'obj': block,
+                                                    'ids': list(),
+                                                    'bounds': None}
+                        pb_imgs = pushblock_image(
+                            block, self.pushblock_sprites)
                         for i in range(block.num_blocks):
-                            image = mb_imgs[i]
+                            image = pb_imgs[i]
                             ID = self.canvas.create_image(
                                 32 * block.block_locations[i][0],
                                 32 * (self.height -
                                       block.block_locations[i][1]),
                                 image=image,
-                                tags='MOVABLEBLOCK_{0}'.format(str(i)),
+                                tags='PUSHBLOCK_{0}'.format(str(i)),
                                 anchor='sw')
-                            self.movable_block_data[num]['ids'].append(ID)
-                            self.movable_block_tiles.append(ID)
+                            self.pushblock_data[num]['ids'].append(ID)
+                            self.pushblock_tiles.append(ID)
                         # Also create the bounds rectangle and hide it by
                         # default
-                        bounds = movable_block_bound(block)
+                        bounds = pushblock_bound(block)
                         ID = self.canvas.create_rectangle(
                             32 * bounds[0],
                             32 * (self.height - bounds[1]),
                             32 * (bounds[2] + 1),
                             32 * (self.height - bounds[3] - 1),
                             fill='', width=3, outline='#FF0000')
-                        self.movable_block_data[num]['bounds'] = ID
+                        self.pushblock_data[num]['bounds'] = ID
                         self.canvas.itemconfig(ID, state=HIDDEN)
         else:
-            for mb_data in self.movable_block_data.values():
-                for ID in mb_data['ids']:
+            for pb_data in self.pushblock_data.values():
+                for ID in pb_data['ids']:
                     self.canvas.itemconfig(ID, state=HIDDEN)
-                self.canvas.itemconfig(mb_data['bounds'], state=HIDDEN)
+                self.canvas.itemconfig(pb_data['bounds'], state=HIDDEN)
 
     def button_press(self, event):
         self.current_selection = self.canvas.find_withtag("current")
@@ -861,14 +931,16 @@ class MapCanvas(Toplevel):
             self._show_gimmick_info(self.current_gimmick)
 
         # If we have selected a moavble block, show its bounds
-        if self.current_selection in self.movable_block_tiles:
+        if self.current_selection in self.pushblock_tiles:
             # find which movable block it belongs to
-            for i, mb_data in self.movable_block_data.items():
-                if self.current_selection in mb_data['ids']:
-                    self.canvas.itemconfig(mb_data['bounds'], state=NORMAL)
+            for i, pb_data in self.pushblock_data.items():
+                if self.current_selection in pb_data['ids']:
+                    self.canvas.itemconfig(pb_data['bounds'], state=NORMAL)
+                    self.pushbox_group.set(i)
                 else:
-                    self.canvas.itemconfig(mb_data['bounds'], state=HIDDEN)
-            # TODO: use `i` for something.
+                    self.canvas.itemconfig(pb_data['bounds'], state=HIDDEN)
+        else:
+            self.pushbox_group.set(0)
 
     def button_release(self, event):
         """ Un-assign the current selection and apply any modifications to
