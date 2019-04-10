@@ -4,11 +4,13 @@ from tkinter import BooleanVar, IntVar, StringVar
 from tkinter import NORMAL, HIDDEN, VERTICAL, HORIZONTAL, ALL, DISABLED, RIDGE
 from PIL import Image, ImageTk
 
+from utils import check_int
 from layer_data import GIMMICKS, LAYER1, LAYER6, MAP_DATA
 from modify_image import apply_mods
 from gimmicks.GimmickHandler import GimmickHandler
 from SpriteHandler import get_sprite
-from pushblock_handler import pushblock_image, update_bounds
+from pushblock_handler import (pushblock_image, update_bounds,
+                               update_pushblock_sprites)
 
 BLOCK_COLOURS = {1: '#000000',
                  2: '#FF0000',
@@ -161,10 +163,10 @@ class MapCanvas(Toplevel):
         """ Add a pushblock in the specified group. """
         x = self.add_item_location[0] // 32
         y = self.height - self.add_item_location[1] // 32 - 1
-        block = self.stage_data.pushblocks[group]
-        if (x, y) not in block.block_locations:
-            block.block_locations.append((x, y))
-            block.num_blocks += 1
+        pushblock = self.stage_data.pushblocks[group]
+        if (x, y) not in pushblock.block_locations:
+            pushblock.block_locations.append((x, y))
+            pushblock.num_blocks += 1
             image = pushblock_image(None, self.pushblock_sprites)
             ID = self.canvas.create_image(
                 32 * x,
@@ -176,6 +178,7 @@ class MapCanvas(Toplevel):
             if group not in self.pushblock_data:
                 self.pushblock_data[group] = dict()
                 self.pushblock_data[group]['ids'] = [ID]
+                self.pushblock_data[group]['obj'] = pushblock
             else:
                 self.pushblock_data[group]['ids'].append(ID)
                 # remove the old bounds image
@@ -183,7 +186,7 @@ class MapCanvas(Toplevel):
             self.pushblock_tiles[ID] = image
 
             # Update the bounds of the push box
-            ID = update_bounds(block, self.pushblock_data[group], self)
+            ID = update_bounds(pushblock, self.pushblock_data[group], self)
             if self.current_selection is None:
                 self.canvas.itemconfig(ID, state=HIDDEN)
             else:
@@ -193,7 +196,7 @@ class MapCanvas(Toplevel):
                 else:
                     self.canvas.itemconfig(ID, state=HIDDEN)
 
-        # TODO: redraw sprites for that group
+            update_pushblock_sprites(pushblock, group, self)
 
     def _add_terrain(self, kind):
         x = self.add_item_location[0] // 32
@@ -947,30 +950,14 @@ class MapCanvas(Toplevel):
             pushblock = pushblock_data['obj']
             # Check if the pushblock has actually changed position.
             # If it has, check if any boxes need to be redrawn.
-            # We only need to actuall redraw the sprites which have changed.
+            # We only need to actually redraw the sprites which have changed.
             loc = pushblock_data['ids'].index(self.current_selection)
             new_position = (
                 int(self.curr_item_location[0] // 32),
                 self.height - int(self.curr_item_location[1] // 32))
             if new_position != pushblock.block_locations[loc]:
                 pushblock.block_locations[loc] = new_position
-                pb_imgs = pushblock_image(pushblock, self.pushblock_sprites)
-                for i, ID in enumerate(pushblock_data['ids']):
-                    image = pb_imgs[i]
-                    if image != self.pushblock_tiles[ID]:
-                        # remove the old image
-                        self.canvas.delete(ID)
-                        # Add a new one and replace the old data
-                        new_ID = self.canvas.create_image(
-                            32 * pushblock.block_locations[i][0],
-                            32 * (self.height -
-                                  pushblock.block_locations[i][1]),
-                            image=image,
-                            tags='PUSHBLOCK_{0}'.format(str(i)),
-                            anchor='sw')
-                        self.pushblock_data[pb_group]['ids'][i] = new_ID
-                        del self.pushblock_tiles[ID]
-                        self.pushblock_tiles[new_ID] = image
+                update_pushblock_sprites(pushblock, pb_group, self)
                 # Update the bounds
                 old_ID = self.pushblock_data[pb_group]['bounds']
                 ID = update_bounds(pushblock, self.pushblock_data[pb_group],
@@ -1002,22 +989,3 @@ class MapCanvas(Toplevel):
                 self.canvas.coords(self.current_selection, [x, y,
                                                             x + 32, y + 32])
             self.curr_item_location = (x, y)
-
-
-def check_int(value_if_allowed, allowed_values=None):
-    """ Callback used to force certain entries to only allow integer value.
-    They May be fixed within a set of values by specifying allowed_values.
-    """
-    # TODO: make allowed_values be more robust???
-    if value_if_allowed == '' or value_if_allowed == '-':
-        return True
-    try:
-        int(value_if_allowed)
-    except ValueError:
-        return False
-    if allowed_values is not None:
-        if value_if_allowed in allowed_values:
-            return True
-        else:
-            return False
-    return True

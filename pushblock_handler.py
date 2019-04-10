@@ -32,6 +32,25 @@ def update_bounds(pushblock, data, parent):
     return ID
 
 
+def update_pushblock_sprites(pushblock, group, parent):
+    pb_imgs = pushblock_image(pushblock, parent.pushblock_sprites)
+    for i, ID in enumerate(parent.pushblock_data[group]['ids']):
+        image = pb_imgs[i]
+        if image != parent.pushblock_tiles[ID]:
+            # remove the old image
+            parent.canvas.delete(ID)
+            # Add a new one and replace the old data
+            new_ID = parent.canvas.create_image(
+                32 * pushblock.block_locations[i][0],
+                32 * (parent.height - pushblock.block_locations[i][1]),
+                image=image,
+                tags='PUSHBLOCK_{0}'.format(str(i)),
+                anchor='sw')
+            parent.pushblock_data[group]['ids'][i] = new_ID
+            del parent.pushblock_tiles[ID]
+            parent.pushblock_tiles[new_ID] = image
+
+
 def pushblock_image(pushblock, existing_sprites):
     """ Return the list of sprites used to draw the pushblock"""
 
