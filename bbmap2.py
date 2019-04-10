@@ -114,8 +114,8 @@ class BBMap():
             self.pointer_data['headers'].append(p)
             write_int32(self._bytes, 0)
 
-    def _write_pushblocks(self, data, mb):
-        data.write(bytes(mb))
+    def _write_pushblocks(self, data, pb):
+        data.write(bytes(pb))
 
     def _read_map_layers(self, fobj):
         """ Read all of the map layers into variables """

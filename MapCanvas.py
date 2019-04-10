@@ -8,6 +8,7 @@ from utils import check_int
 from layer_data import GIMMICKS, LAYER1, LAYER6, MAP_DATA
 from modify_image import apply_mods
 from gimmicks.GimmickHandler import GimmickHandler
+from gimmicks.Gimmicks import Gimmick_Gravity, Gimmick_Shutter
 from SpriteHandler import get_sprite
 from pushblock_handler import (pushblock_image, update_bounds,
                                update_pushblock_sprites)
@@ -132,7 +133,7 @@ class MapCanvas(Toplevel):
         self.add_item_location = None
         self.hints_shown = False
 
-    def _add_gimmick(self, kind):
+    def _add_gimmick(self, kind, **kwargs):
         # Toggle the gimmicks on First
         if not self.show_gimmicks.get():
             self.show_gimmicks.set(True)
@@ -140,7 +141,10 @@ class MapCanvas(Toplevel):
         new_obj = self.gimmick_handler.new(
             kind,
             self.add_item_location[0],
-            self.add_item_location[1])
+            self.add_item_location[1],
+            **kwargs)
+        self._draw_gimmick(new_obj)
+        """
         gimmick_img_data = new_obj.image(GIMMICKS)
         image = self._get_gimmick_image(gimmick_img_data)
         ID = self.canvas.create_image(
@@ -152,12 +156,14 @@ class MapCanvas(Toplevel):
         self.gimmicks.append(ID)
         self.gimmick_data[ID] = new_obj
         self.canvas.itemconfig(ID, state=NORMAL)
+        """
 
     def _add_gravity(self, direction):
         """ Add a gravity tile. """
         if not self.show_layer6.get():
             self.show_layer6.set(True)
             self._toggle_layer6()
+        self._add_gimmick(27, direction=direction)
 
     def _add_pushblock(self, group):
         """ Add a pushblock in the specified group. """
@@ -220,7 +226,7 @@ class MapCanvas(Toplevel):
 
         self._redraw_surrounding_sprites(x, y)
 
-    def _validate_and_apply_param(self, new_value, param, comp=None):
+    def _validate_and_apply_param(self, new_value, how, param, comp=None):
         """ Apply the value in the entry to the gimmick.
 
         Parameters
@@ -232,6 +238,10 @@ class MapCanvas(Toplevel):
         comp : int (in {0, 1}) or None
             Whether it is the first or second component.
         """
+        if how == 'forced':
+            # If the widget is assigned the value from the Gimmick we will
+            # assume it is fine and not validate it.
+            return True
         if check_int(new_value):
             if new_value == '' or new_value == '-':
                 return True
@@ -254,6 +264,13 @@ class MapCanvas(Toplevel):
                         setattr(self.current_gimmick,
                                 'param{0}'.format(str(param)),
                                 tuple(curr_value))
+                if isinstance(self.current_gimmick, Gimmick_Gravity):
+                    # For the gravity gimmick, we want to re-draw it if the
+                    # position or extent have changed...
+                    if param in (0, 1):
+                        if self.current_selection is not None:
+                            self._redraw_gimmick(self.current_gimmick,
+                                                 [self.current_selection])
             return True
         return False
 
@@ -276,6 +293,103 @@ class MapCanvas(Toplevel):
                 image=image, tags='LAYER1',
                 anchor='sw')
         self.layer1_tiles.append(ID)
+
+    def _draw_gimmick(self, gimmick):
+        gimmick_img_data = gimmick.image(GIMMICKS)
+        if gimmick_img_data is None:
+            # Don't draw it or anything...
+            return
+        image = self._get_gimmick_image(gimmick_img_data)
+        if isinstance(image, list):
+            for drawing_params in image:
+                if 'rectangle' in drawing_params:
+                    coords = drawing_params.pop('rectangle')
+                    ID = self.canvas.create_rectangle(
+                        coords[0], 32 * self.height - coords[1],
+                        coords[2], 32 * self.height - coords[3],
+                        activeoutline=ACTIVEOUTLINE,
+                        tags=('GIMMICK', 'IMMOVABLE',
+                              'wuid_' + str(gimmick.wuid),
+                              'kind_' + str(gimmick.kind),
+                              *gimmick.extra_tags),
+                        **drawing_params)
+                elif 'text' in drawing_params:
+                    position = drawing_params.pop('position')
+                    ID = self.canvas.create_text(
+                        position[0] + 5,
+                        32 * self.height - position[1] + 5,
+                        tags=('GIMMICK', 'TEXT',
+                              'wuid_' + str(gimmick.wuid),
+                              'kind_' + str(gimmick.kind),
+                              *gimmick.extra_tags),
+                        **drawing_params,
+                        anchor='nw')
+                elif 'image' in drawing_params:
+                    image = self._get_gimmick_image(
+                        drawing_params['image'])
+                    position = drawing_params['position']
+                    ID = self.canvas.create_image(
+                        position[0],
+                        32 * self.height - position[1] + 32,
+                        image=image,
+                        tags=('GIMMICK',
+                              'wuid_' + str(gimmick.wuid),
+                              'kind_' + str(gimmick.kind),
+                              *gimmick.extra_tags),
+                        anchor='sw')
+                self.gimmicks.append(ID)
+                self.gimmick_data[ID] = gimmick
+
+        else:
+            ID = self.canvas.create_image(
+                gimmick.x,
+                32 * self.height - gimmick.y + 32,
+                image=image,
+                tags=('GIMMICK', 'wuid_' + str(gimmick.wuid),
+                      'kind_' + str(gimmick.kind),
+                      *gimmick.extra_tags),
+                anchor='sw')
+            self.gimmicks.append(ID)
+            self.gimmick_data[ID] = gimmick
+        # Horizontal shutters have another part rotated and placed
+        # across from them
+        if isinstance(gimmick, Gimmick_Shutter):
+            # first, find the location of the other shutter
+            if gimmick.direction == 1:
+                left_coord = int(self.canvas.coords(ID)[1])
+                right_side_ids = self.canvas.find_withtag(
+                    'SHUTTER_R')
+                closest_x = float('inf')
+                for ID in right_side_ids:
+                    x, y = self.canvas.coords(ID)
+                    if int(y) == left_coord:
+                        if x < closest_x:
+                            closest_x = int(x)
+                if closest_x == float('inf'):
+                    # If nothing is found just move on
+                    return
+                # now we should have the x and y location
+                img_data = {'path': gimmick_img_data['path'],
+                            'mods': ['rot_270']}
+                image = self._get_gimmick_image(img_data)
+                ID = self.canvas.create_image(
+                    closest_x, left_coord,
+                    image=image,
+                    tags=('GIMMICK',
+                          'wuid_' + str(gimmick.wuid),
+                          'kind_' + str(gimmick.kind),
+                          *gimmick.extra_tags),
+                    anchor='sw')
+                self.gimmicks.append(ID)
+                self.gimmick_data[ID] = gimmick
+
+    def _redraw_gimmick(self, gimmick, old_IDs):
+        """ Redraw the specified gimmick """
+        for ID in old_IDs:
+            self.canvas.delete(ID)
+            del self.gimmick_data[ID]
+        self._draw_gimmick(gimmick)
+        self.current_selection = self.gimmicks[-1]
 
     def _redraw_surrounding_sprites(self, x, y):
         for loc in [(x - 1, y), (x + 1, y), (x, y + 1), (x, y - 1)]:
@@ -360,12 +474,12 @@ class MapCanvas(Toplevel):
         Label(gimmick_edit_frame,
               text='wuid').grid(column=0, row=1, sticky='w')
         Entry(gimmick_edit_frame, width=5, validate=ALL,
-              validatecommand=(self._validate_and_apply, '%P', 'wuid'),
+              validatecommand=(self._validate_and_apply, '%P', '%V', 'wuid'),
               textvariable=self.gimmick_wuid).grid(column=1, row=1, sticky='w')
         Label(gimmick_edit_frame,
               text='group').grid(column=0, row=2, sticky='w')
         Entry(gimmick_edit_frame, width=5, validate=ALL,
-              validatecommand=(self._validate_and_apply, '%P', 'group'),
+              validatecommand=(self._validate_and_apply, '%P', '%V', 'group'),
               textvariable=self.gimmick_group).grid(column=1, row=2,
                                                     sticky='w')
 
@@ -373,72 +487,72 @@ class MapCanvas(Toplevel):
               textvariable=self.param0_name).grid(column=0, row=3)
         self.param0_entry1 = Entry(gimmick_edit_frame, width=5, validate=ALL,
                                    validatecommand=(self._validate_and_apply,
-                                                    '%P', 0, 0),
+                                                    '%P', '%V', 0, 0),
                                    textvariable=self.param0_value_1)
         self.param0_entry1.grid(column=1, row=3)
         self.param0_entry2 = Entry(gimmick_edit_frame, width=5, validate=ALL,
                                    validatecommand=(self._validate_and_apply,
-                                                    '%P', 0, 1),
+                                                    '%P', '%V', 0, 1),
                                    textvariable=self.param0_value_2)
         self.param0_entry2.grid(column=2, row=3)
         Label(gimmick_edit_frame,
               textvariable=self.param1_name).grid(column=0, row=4)
         self.param1_entry1 = Entry(gimmick_edit_frame, width=5, validate=ALL,
                                    validatecommand=(self._validate_and_apply,
-                                                    '%P', 1, 0),
+                                                    '%P', '%V', 1, 0),
                                    textvariable=self.param1_value_1)
         self.param1_entry1.grid(column=1, row=4)
         self.param1_entry2 = Entry(gimmick_edit_frame, width=5, validate=ALL,
                                    validatecommand=(self._validate_and_apply,
-                                                    '%P', 1, 1),
+                                                    '%P', '%V', 1, 1),
                                    textvariable=self.param1_value_2)
         self.param1_entry2.grid(column=2, row=4)
         Label(gimmick_edit_frame,
               textvariable=self.param2_name).grid(column=0, row=5)
         self.param2_entry1 = Entry(gimmick_edit_frame, width=5, validate=ALL,
                                    validatecommand=(self._validate_and_apply,
-                                                    '%P', 2, 0),
+                                                    '%P', '%V', 2, 0),
                                    textvariable=self.param2_value_1)
         self.param2_entry1.grid(column=1, row=5)
         self.param2_entry2 = Entry(gimmick_edit_frame, width=5, validate=ALL,
                                    validatecommand=(self._validate_and_apply,
-                                                    '%P', 2, 1),
+                                                    '%P', '%V', 2, 1),
                                    textvariable=self.param2_value_2)
         self.param2_entry2.grid(column=2, row=5)
         Label(gimmick_edit_frame,
               textvariable=self.param3_name).grid(column=0, row=6)
         self.param3_entry1 = Entry(gimmick_edit_frame, width=5, validate=ALL,
                                    validatecommand=(self._validate_and_apply,
-                                                    '%P', 3, 0),
+                                                    '%P', '%V', 3, 0),
                                    textvariable=self.param3_value_1)
         self.param3_entry1.grid(column=1, row=6)
         self.param3_entry2 = Entry(gimmick_edit_frame, width=5, validate=ALL,
                                    validatecommand=(self._validate_and_apply,
-                                                    '%P', 3, 1),
+                                                    '%P', '%V', 3, 1),
                                    textvariable=self.param3_value_2)
         self.param3_entry2.grid(column=2, row=6)
         Label(gimmick_edit_frame,
               textvariable=self.param4_name).grid(column=0, row=7)
         self.param4_entry1 = Entry(gimmick_edit_frame, width=5, validate=ALL,
                                    validatecommand=(self._validate_and_apply,
-                                                    '%P', 4, 0),
+                                                    '%P', '%V', 4, 0),
                                    textvariable=self.param4_value_1)
         self.param4_entry1.grid(column=1, row=7)
         self.param4_entry2 = Entry(gimmick_edit_frame, width=5, validate=ALL,
                                    validatecommand=(self._validate_and_apply,
-                                                    '%P', 4, 1),
+                                                    '%P', '%V', 4, 1),
                                    textvariable=self.param4_value_2)
         self.param4_entry2.grid(column=2, row=7)
         Label(gimmick_edit_frame,
               textvariable=self.param5_name).grid(column=0, row=8)
         self.param5_entry1 = Entry(gimmick_edit_frame, width=5, validate=ALL,
                                    validatecommand=(self._validate_and_apply,
-                                                    '%P', 5, 0),
+                                                    '%P', '%V', 5, 0),
                                    textvariable=self.param5_value_1)
         self.param5_entry1.grid(column=1, row=8)
         self.param5_entry2 = Entry(gimmick_edit_frame, width=5, validate=ALL,
                                    validatecommand=(self._validate_and_apply,
-                                                    '%P', 5, 1),
+                                                    '%P', '%V', 5, 1),
                                    textvariable=self.param5_value_2)
         self.param5_entry2.grid(column=2, row=8)
 
@@ -525,9 +639,6 @@ class MapCanvas(Toplevel):
         self.gimmick_menu.add_command(
             label='Laser',
             command=lambda: self._add_gimmick(3))
-        self.gimmick_menu.add_command(
-            label='Crown',
-            command=lambda: self._add_gimmick(4))
         # Add terrain cascade
         self.terrain_menu = Menu(self.popup_menu, tearoff=0)
         self.popup_menu.add_cascade(label='Add Terrain',
@@ -598,8 +709,9 @@ class MapCanvas(Toplevel):
         self.stage_data.save()
 
     def _show_popup(self, event):
-        self.add_item_location = (int(self.canvas.canvasx(event.x)),
-                                  int(self.canvas.canvasy(event.y)))
+        self.add_item_location = (
+            32 * int(self.canvas.canvasx(event.x) // 32),
+            32 * (self.height - int(self.canvas.canvasy(event.y) // 32)))
         self.popup_menu.post(event.x_root, event.y_root)
 
     def _show_gimmick_info(self, gimmick):
@@ -636,99 +748,14 @@ class MapCanvas(Toplevel):
                 self._highlight_obj(target_id)
 
     def _toggle_gimmicks(self):
+        # TODO: have gimmicks always appear on top
         if self.show_gimmicks.get() is True:
             if len(self.gimmicks) != 0:
                 for ID in self.gimmicks:
                     self.canvas.itemconfig(ID, state=NORMAL)
             else:
                 for gimmick in self.gimmick_handler.gimmicks:
-                    gimmick_img_data = gimmick.image(GIMMICKS)
-                    if gimmick_img_data is None:
-                        # Don't draw it or anything...
-                        continue
-                    image = self._get_gimmick_image(gimmick_img_data)
-                    if isinstance(image, list):
-                        for drawing_params in image:
-                            if 'rectangle' in drawing_params:
-                                coords = drawing_params.pop('rectangle')
-                                ID = self.canvas.create_rectangle(
-                                    coords[0], 32 * self.height - coords[1],
-                                    coords[2], 32 * self.height - coords[3],
-                                    activeoutline=ACTIVEOUTLINE,
-                                    tags=('GIMMICK', 'IMMOVABLE',
-                                          'wuid_' + str(gimmick.wuid),
-                                          'kind_' + str(gimmick.kind),
-                                          *gimmick.extra_tags),
-                                    **drawing_params)
-                            elif 'text' in drawing_params:
-                                position = drawing_params.pop('position')
-                                ID = self.canvas.create_text(
-                                    position[0] + 5,
-                                    32 * self.height - position[1] + 5,
-                                    tags=('GIMMICK', 'TEXT',
-                                          'wuid_' + str(gimmick.wuid),
-                                          'kind_' + str(gimmick.kind),
-                                          *gimmick.extra_tags),
-                                    **drawing_params,
-                                    anchor='nw')
-                            elif 'image' in drawing_params:
-                                image = self._get_gimmick_image(
-                                    drawing_params['image'])
-                                position = drawing_params['position']
-                                ID = self.canvas.create_image(
-                                    position[0],
-                                    32 * self.height - position[1] + 32,
-                                    image=image,
-                                    tags=('GIMMICK',
-                                          'wuid_' + str(gimmick.wuid),
-                                          'kind_' + str(gimmick.kind),
-                                          *gimmick.extra_tags),
-                                    anchor='sw')
-                            self.gimmicks.append(ID)
-                            self.gimmick_data[ID] = gimmick
-
-                    else:
-                        ID = self.canvas.create_image(
-                            gimmick.x,
-                            32 * self.height - gimmick.y + 32,
-                            image=image,
-                            tags=('GIMMICK', 'wuid_' + str(gimmick.wuid),
-                                  'kind_' + str(gimmick.kind),
-                                  *gimmick.extra_tags),
-                            anchor='sw')
-                        self.gimmicks.append(ID)
-                        self.gimmick_data[ID] = gimmick
-                    # Horizontal shutters have another part rotated and placed
-                    # across from them
-                    if gimmick.kind == 11:
-                        # first, find the location of the other shutter
-                        if gimmick.direction == 1:
-                            left_coord = int(self.canvas.coords(ID)[1])
-                            right_side_ids = self.canvas.find_withtag(
-                                'SHUTTER_R')
-                            closest_x = float('inf')
-                            for ID in right_side_ids:
-                                x, y = self.canvas.coords(ID)
-                                if int(y) == left_coord:
-                                    if x < closest_x:
-                                        closest_x = int(x)
-                            if closest_x == float('inf'):
-                                # If nothing is found just move on
-                                continue
-                            # now we should have the x and y location
-                            img_data = {'path': gimmick_img_data['path'],
-                                        'mods': ['rot_270']}
-                            image = self._get_gimmick_image(img_data)
-                            ID = self.canvas.create_image(
-                                closest_x, left_coord,
-                                image=image,
-                                tags=('GIMMICK',
-                                      'wuid_' + str(gimmick.wuid),
-                                      'kind_' + str(gimmick.kind),
-                                      *gimmick.extra_tags),
-                                anchor='sw')
-                            self.gimmicks.append(ID)
-                            self.gimmick_data[ID] = gimmick
+                    self._draw_gimmick(gimmick)
             self.hints_shown = True
         else:
             for ID in self.gimmicks:

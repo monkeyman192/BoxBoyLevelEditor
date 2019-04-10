@@ -43,6 +43,8 @@ def gimmick_factory(gimmick_bytes):
 
 class Gimmick():
     def __init__(self, fobj):
+        # Specify some values irrespective of whether we are loading from bytes
+        # or not
         if not self.param_fmts:
             self.param_fmts = ('<i', '<i', '<i', '<i', '<i', '<i')
 
@@ -50,8 +52,14 @@ class Gimmick():
             self.param_names = ('param0', 'param1', 'param2', 'param3',
                                 'param4', 'param5')
 
+        self.name = 'Unknown'
+        self.extra_tags = tuple()
+
+        # If we aren't loading from some inital bytes, finish initializing the
+        # class.
         if fobj is None:
             return
+        # The rest of these values are loaded from the supplied data
         self.wuid = read_int32(fobj)
         self.kind = read_int32(fobj)
         self.x = read_int32(fobj)
@@ -61,20 +69,23 @@ class Gimmick():
 
         self.load_parameters(fobj)
 
-        self.name = 'Unknown'
-        self.extra_tags = tuple()
-
     @staticmethod
-    def new(wuid, kind, x, y, group, appearance=0):
+    def new(wuid, kind, x, y, group, appearance=0, **kwargs):
         if kind == 3:
             new_class = Gimmick_Laser(None)
-            new_class.direction = 8  # up by default
+            new_class.direction = 8  # Up by default
         elif kind == 4:
             new_class = Gimmick_Crown(None)
         elif kind == 22:
             new_class = Gimmick_Battery(None)
         elif kind == 27:
             new_class = Gimmick_Gravity(None)
+            # Set some defaults
+            new_class.position = (x, y)
+            new_class.extent = (32, 32)  # 1x1 square by default
+            new_class.is_active = 1      # Start active
+            new_class.direction = kwargs.get('direction', 0)  # Up by default
+            new_class.speed = 1
         new_class.wuid = wuid
         new_class.kind = kind
         new_class.x = x
@@ -157,7 +168,14 @@ class Gimmick():
 
     def __getattr__(self, name):
         if name.startswith('param'):
-            return 0
+            try:
+                param_num = int(name[-1])
+            except ValueError:
+                return 0
+            if self.param_fmts[param_num] == '<i':
+                return 0
+            elif self.param_fmts[param_num] == '<hh':
+                return (0, 0)
         else:
             raise AttributeError
 
