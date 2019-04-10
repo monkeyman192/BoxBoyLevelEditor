@@ -8,7 +8,7 @@ from utils import check_int
 from layer_data import GIMMICKS, LAYER1, LAYER6, MAP_DATA
 from modify_image import apply_mods
 from gimmicks.GimmickHandler import GimmickHandler
-from gimmicks.Gimmicks import Gimmick_Gravity, Gimmick_Shutter
+from gimmicks.Gimmicks import Gimmick_Gravity, Gimmick_Shutter, Gimmick_Laser
 from SpriteHandler import get_sprite
 from pushblock_handler import (pushblock_image, update_bounds,
                                update_pushblock_sprites)
@@ -144,19 +144,6 @@ class MapCanvas(Toplevel):
             self.add_item_location[1],
             **kwargs)
         self._draw_gimmick(new_obj)
-        """
-        gimmick_img_data = new_obj.image(GIMMICKS)
-        image = self._get_gimmick_image(gimmick_img_data)
-        ID = self.canvas.create_image(
-            new_obj.x,
-            new_obj.y,
-            image=image,
-            tags=('GIMMICK', str(new_obj.wuid), 'kind_' + str(new_obj.kind)),
-            anchor='sw')
-        self.gimmicks.append(ID)
-        self.gimmick_data[ID] = new_obj
-        self.canvas.itemconfig(ID, state=NORMAL)
-        """
 
     def _add_gravity(self, direction):
         """ Add a gravity tile. """
@@ -167,8 +154,8 @@ class MapCanvas(Toplevel):
 
     def _add_pushblock(self, group):
         """ Add a pushblock in the specified group. """
-        x = self.add_item_location[0] // 32
-        y = self.height - self.add_item_location[1] // 32 - 1
+        x = self.add_item_location[0]
+        y = self.add_item_location[1]
         pushblock = self.stage_data.pushblocks[group]
         if (x, y) not in pushblock.block_locations:
             pushblock.block_locations.append((x, y))
@@ -264,6 +251,13 @@ class MapCanvas(Toplevel):
                         setattr(self.current_gimmick,
                                 'param{0}'.format(str(param)),
                                 tuple(curr_value))
+                if isinstance(self.current_gimmick, Gimmick_Laser):
+                    if param == 0:
+                        # Laser direction. Redraw the image if the direction
+                        # changes
+                        if self.current_selection is not None:
+                            self._redraw_gimmick(self.current_gimmick,
+                                                 [self.current_selection])
                 if isinstance(self.current_gimmick, Gimmick_Gravity):
                     # For the gravity gimmick, we want to re-draw it if the
                     # position or extent have changed...
@@ -295,7 +289,10 @@ class MapCanvas(Toplevel):
         self.layer1_tiles.append(ID)
 
     def _draw_gimmick(self, gimmick):
-        gimmick_img_data = gimmick.image(GIMMICKS)
+        try:
+            gimmick_img_data = gimmick.image(GIMMICKS)
+        except KeyError:
+            print('Invalid value.')
         if gimmick_img_data is None:
             # Don't draw it or anything...
             return

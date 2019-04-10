@@ -1,5 +1,17 @@
 MAP_DATA = {
-    7: {'path': 'images\\Sprites\\07_PuzzleBlock.png'}
+    7: {'path': 'images\\Sprites\\07_PuzzleBlock.png'},
+    28: {'path': 'images\\Sprites\\28.png'},
+    29: {'path': 'images\\Sprites\\28.png', 'mods': ['flip_x']},
+    30: {'path': 'images\\Sprites\\30.png'},
+    31: {'path': 'images\\Sprites\\30.png', 'mods': ['flip_x']},
+    32: {'path': 'images\\Sprites\\32.png'},
+    33: {'path': 'images\\Sprites\\32.png', 'mods': ['flip_x']},
+    36: {'path': 'images\\Sprites\\36.png'},
+    37: {'path': 'images\\Sprites\\36.png', 'mods': ['flip_x']},
+    38: {'path': 'images\\Sprites\\38.png'},
+    39: {'path': 'images\\Sprites\\38.png', 'mods': ['flip_x']},
+    40: {'path': 'images\\Sprites\\40.png'},
+    41: {'path': 'images\\Sprites\\40.png', 'mods': ['flip_x']}
 }
 # TODO: Add the rectangles to this also to make it all in one place...
 
@@ -22,11 +34,13 @@ GIMMICKS = {
     11: {0: {'path': 'images\\Gimmicks\\11_Shutter.png'},
          1: {'path': 'images\\Gimmicks\\11_Shutter.png', 'mods': ['rot_90']}},
     17: {'path': 'images\\Gimmicks\\17_FallSplinter.png'},
+    18: {'path': 'images\\Gimmicks\\18_Spikey.png'},
     22: {0: {'path': 'images\\Gimmicks\\22_Battery_Plus.png'},
          1: {'path': 'images\\Gimmicks\\22_Battery_Minus.png'}},
     23: {0: {'path': 'images\\Gimmicks\\23_WarpCloud.png'},
          1: {'path': 'images\\Gimmicks\\23_WarpCloud.png',
              'mods': ['rot_180']}},
+    26: {'path': 'images\\Gimmicks\\26_SpikeyEnd.png'},
     27: {0: {0: {'path': 'images\\Gimmicks\\27_0.png'},
              1: {'path': 'images\\Gimmicks\\27_0.png', 'mods': ['rot_180']},
              2: {'path': 'images\\Gimmicks\\27_0.png', 'mods': ['rot_90']},

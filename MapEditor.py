@@ -5,7 +5,7 @@ import shutil
 
 from FileTreeview import FileTreeview
 from Settings import Settings
-from mappack import unpack_map
+from mappack import unpack_map, pack_map
 from read_map import extract_map_data
 from MapCanvas import MapCanvas
 from bbmap2 import BBMap
@@ -100,7 +100,8 @@ class MapEditor(Frame):
 
     def _recompile(self):
         for sid in self.dst_tv.selection():
-            print(self.dst_tv.get_filepath(sid))
+            # TODO: make work...
+            pack_map(self.dst_tv.get_filepath(sid))
 
     def _create_widgets(self):
         mainframe = Frame(self)

@@ -31,10 +31,14 @@ def gimmick_factory(gimmick_bytes):
         return Gimmick_HelpArea(gimmick_bytes)
     if kind == 17:
         return Gimmick_FallSplinter(gimmick_bytes)
+    if kind == 18:
+        return Gimmick_Spikey(gimmick_bytes)
     elif kind == 22:
         return Gimmick_Battery(gimmick_bytes)
     elif kind == 23:
         return Gimmick_WarpCloud(gimmick_bytes)
+    elif kind == 26:
+        return Gimmick_SpikeyEnd(gimmick_bytes)
     elif kind == 27:
         return Gimmick_Gravity(gimmick_bytes)
     else:
@@ -454,6 +458,16 @@ class Gimmick_FallSplinter(Gimmick):
         self.param1 = value
 
 
+class Gimmick_Spikey(Gimmick):
+    """ Gimmick # 18 """
+    def __init__(self, fobj):
+        self.param_names = ('param0', 'param1', 'param2', 'param3',
+                            'param4', 'param5')
+        self.param_fmts = ('<hh', '<i', '<i', '<i', '<i', '<i')
+        super(Gimmick_Spikey, self).__init__(fobj)
+        self.name = 'Spikey'
+
+
 class Gimmick_Battery(Gimmick):
     """ Gimmick # 22 """
     def __init__(self, fobj):
@@ -535,6 +549,23 @@ class Gimmick_WarpCloud(Gimmick):
     @out_group.setter
     def out_group(self, value):
         self.param3 = value
+
+
+class Gimmick_SpikeyEnd(Gimmick):
+    """ Gimmick # 26 """
+    def __init__(self, fobj):
+        self.param_names = ('target_id', 'param1', 'param2', 'param3',
+                            'param4', 'param5')
+        super(Gimmick_SpikeyEnd, self).__init__(fobj)
+        self.name = 'Spikey Target'
+
+    @property
+    def target_id(self):
+        return self.param0
+
+    @target_id.setter
+    def target_id(self, value):
+        self.param0 = value
 
 
 class Gimmick_Gravity(Gimmick):
