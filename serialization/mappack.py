@@ -161,5 +161,5 @@ def pack_map(fpath, recompress=True):
 
 
 if __name__ == "__main__":
-    #unpack_map('Archive.bin.cmp')
+    # unpack_map('Archive.bin.cmp')
     pack_map('.')

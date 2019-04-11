@@ -5,10 +5,10 @@ import shutil
 
 from FileTreeview import FileTreeview
 from Settings import Settings
-from mappack import unpack_map, pack_map
-from read_map import extract_map_data
+from serialization.mappack import unpack_map, pack_map
+from map_formats.read_map import extract_map_data
 from MapCanvas import MapCanvas
-from bbmap2 import BBMap
+from map_formats.bbmap import BBMap
 
 
 class MapEditor(Frame):

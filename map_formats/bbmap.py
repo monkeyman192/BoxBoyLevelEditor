@@ -1,8 +1,12 @@
+""" Map format for BoxBoy! and BoxBoxBoy! """
+__author__ = "monkeyman192"
+
 import struct
 from io import BytesIO
 import shutil
 
-from serialization.io import read_int32, write_int32, write_int32_array
+from serialization.io import (read_int32, write_int32, write_int32_array,
+                              Pointer)
 from gimmicks.Gimmicks import gimmick_factory
 
 
@@ -284,42 +288,6 @@ class PushBlock():
         for data in self.block_locations:
             _bytes += struct.pack('<ii', *data)
         return _bytes
-
-
-class Pointer():
-    """ Context Manager to handle reading data located somewhere from a pointer
-    """
-    def __init__(self, fobj):
-        self.fobj = fobj
-        self.state = 'r'
-        self.header_locations = dict()
-
-        # start the pointer at the beginning of the file
-        self.pointer_location = self.fobj.tell()
-        self._bytes = BytesIO(b'')
-
-        self.assign_func = None
-
-    def __enter__(self):
-        self.return_location = self.fobj.tell()
-        offset = read_int32(self.fobj)
-        self.fobj.seek(offset)
-
-    def __exit__(self, exc_type, exc_val, exc_tb):
-        self.fobj.seek(self.return_location + 0x4)
-
-    def assign_data(self, func):
-        """ Call a function to assign data to the pointer. """
-        self.assign_func = func
-
-    def write(self):
-        """ Write the bytes to the underlying data stream. """
-        curr_offset = self.fobj.tell()
-        self.assign_func(self.fobj)
-        end_return = self.fobj.tell()
-        self.fobj.seek(self.pointer_location)
-        write_int32(self.fobj, curr_offset)
-        self.fobj.seek(end_return)
 
 
 def swap(lst, idx1, idx2):
