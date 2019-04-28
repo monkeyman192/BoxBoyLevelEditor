@@ -2,6 +2,11 @@ import struct
 from io import BytesIO
 
 
+def read_name(fobj):
+    _len = read_int32(fobj)
+    return struct.unpack('{0}s'.format(str(_len)), fobj.read(_len))[0]
+
+
 def read_dtype(fobj, dtype):
     if dtype == '<i':
         return read_int32(fobj)

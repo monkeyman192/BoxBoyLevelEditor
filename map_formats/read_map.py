@@ -315,14 +315,14 @@ kind:
    8 - Facing up
  4 - Crown (located 1 block higher than it looks like it should be)
   All params always 0?
- 5 - NONE
+ 5 - InitCamera
  6 - Button (located 1 block higher than it looks like it should be)
   param0:
    2 - Facing down
    4 - Facing left
    6 - Facing right
    8 - Facing up
-  param1 : always 1?
+  param1 : always 1? (possibly 0 = OneTime, 1 = Toggle)
   param2 : wuid of the door to open, or -1 to toggle the toggle blocks
  7 - Toggle blocks (located 1 block higher than it looks like it should be)
   param0:
@@ -330,18 +330,18 @@ kind:
    1 - starts on
  8 - Break block
  9 - Something to do with a fixed camera position
-10 - NONE
+10 - StartDoor
 11 - Shutter
  param0 : direction : 0: vertical, 1: horizontal
  param1 : already open : 0: No, 1: Yes
-12 - ???
+12 - Priority Camera
 13 - Hint Area
  param0/param1: an area? (mRect)
  param2/param3: another area? (mPlayerRect)
-14 - NONE
+14 - Assist Block
 15 - "Guide Board" (Help image I think?)
  param0: help image id?
-16 - NONE
+16 - Chellenge String
 17 - Falling spikes
  param0: direction (?) Always 2...
  param1: fall rate (?)
@@ -349,8 +349,8 @@ kind:
  param0: x, y : override position?
  param1: x, y : whether to use the override position??
 19 - Score dot (for Score attack)
-20 - NONE
-21 - NONE
+20 - Fall Block Controller
+21 - Medal Guide
 22 - Battery (Plus/Minus blocks)
  param0: (enum) 0: 'Plus', 1: 'Minus'
  param1: (bool) Is a toggle (ie. 0 means it is only a single use...)
@@ -409,8 +409,17 @@ kind:
 28 - World entry door
  param0: world id
 29 - Shop entry door
-30 - NONE
-31 - Black overworld smoke stuff
+30 - EndingDoor
+31 - Dark Cloud
+32 - Projector
+33 - World Switch
+34 - Dark Cloud Boss
 35 - Chest
  group: indicates contents I guess?
+36 - Dark Cloud Last
+37 - Door Last Monument
+38 - World Transporter
+39 - Hako Big Land
+40 - Box Planet
+41 - World Arrow
 """

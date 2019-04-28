@@ -1,4 +1,8 @@
-from lxml import etree
+try:
+    from lxml import etree
+    NOLXML = False
+except ImportError:
+    NOLXML = True
 from io import BytesIO
 import struct
 
@@ -80,6 +84,8 @@ class Gimmick():
             new_class.direction = 8  # Up by default
         elif kind == 4:
             new_class = Gimmick_Crown(None)
+        elif kind == 6:
+            new_class = Gimmick_Button(None)
         elif kind == 22:
             new_class = Gimmick_Battery(None)
         elif kind == 27:
@@ -107,6 +113,9 @@ class Gimmick():
         self.param5 = read_dtype(fobj, self.param_fmts[5])
 
     def export(self, i):
+        if NOLXML:
+            print('lxml is not installed. Please install it!')
+            return
         gimmick_data = etree.Element('Gimmick_{0}'.format(str(i)))
         wuid = etree.Element('wuid')
         wuid.text = str(self.wuid)
@@ -290,7 +299,7 @@ class Gimmick_Crown(Gimmick):
 class Gimmick_Button(Gimmick):
     """ Gimmick # 6 """
     def __init__(self, fobj):
-        self.param_names = ('direction', 'param1', 'target_id', 'param3',
+        self.param_names = ('direction', 'is_toggle', 'target_id', 'param3',
                             'param4', 'param5')
 
         super(Gimmick_Button, self).__init__(fobj)
@@ -306,6 +315,14 @@ class Gimmick_Button(Gimmick):
     @direction.setter
     def direction(self, value):
         self.param0 = value
+
+    @property
+    def is_toggle(self):
+        return self.param1
+
+    @is_toggle.setter
+    def is_toggle(self, value):
+        self.param1 = value
 
     @property
     def target_id(self):

@@ -1,3 +1,5 @@
-from map_formats.mint_extract import Mint
+from map_formats.mint_extract import Mint, Xbin
 
-m = Mint('Default.bin')
+#m = Mint('Archive.bin')
+
+x = Xbin('Laser.xbin')
