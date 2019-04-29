@@ -24,6 +24,11 @@ def unpack_map(fname):
         # now run lzx.exe on the file to decompress it
         cmds = ['tools\\lzx.exe', '-d', fname]
         subprocess.run(cmds, stdout=subprocess.PIPE)
+
+        # prevent error from happening if decompressed file exists
+        if op.isfile(op.splitext(fname)[0]):
+            os.remove(op.splitext(fname)[0])
+
         os.rename(fname, op.splitext(fname)[0])
         os.rename('{}_copy'.format(fname), fname)
         # set the filename to be used for the rest of the function as the
@@ -93,9 +98,15 @@ def pack_map(fpath, recompress=True):
     """
     # find all the files of the form stepXX.bin:
     fnames = []
-    for fname in os.listdir(fpath):
-        if re.match('step[0-9]{2}.bin', fname):
-            fnames.append(op.join(fpath, fname))
+    if op.isdir(fpath):
+        for fname in os.listdir(fpath):
+            if re.match('step[0-9]{2}.bin', fname):
+                fnames.append(op.join(fpath, fname))
+        if len(fnames) == 0:
+            raise FileNotFoundError("Directory has no step#.bin files.")
+    elif re.match('step[0-9]{2}.bin', op.split(fpath)[1]):
+        fnames.append(fpath)
+        fpath = op.dirname(fpath)
     fnames.sort()
 
     # we need to get some data first before rebuilding the file.
@@ -156,6 +167,11 @@ def pack_map(fpath, recompress=True):
         # now run lzx.exe on the file to decompress it
         cmds = ['tools\\lzx.exe', '-evb', full_path]
         subprocess.run(cmds, stdout=subprocess.PIPE)
+
+        # prevent error from happening if compressed file exists
+        if op.isfile('{0}.cmp'.format(full_path)):
+            os.remove('{0}.cmp'.format(full_path))
+
         os.rename(full_path, '{0}.cmp'.format(full_path))
         os.rename('{}_copy'.format(full_path), full_path)
 
