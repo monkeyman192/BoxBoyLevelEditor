@@ -1,8 +1,11 @@
 """ Map format for BoxBoy! and BoxBoxBoy! """
+import re
+
 __author__ = "monkeyman192"
 
 import struct
 from io import BytesIO
+import os.path as op
 import shutil
 
 from serialization.io import (read_int32, write_int32, write_int32_array,
@@ -12,6 +15,11 @@ from gimmicks.Gimmicks import gimmick_factory
 
 class BBMap():
     def __init__(self, fpath):
+        if op.isdir(fpath):
+            raise TypeError('Provided path is a directory.')
+        if not re.match('step[0-9]{2}.bin', op.split(fpath)[1]):
+            raise TypeError('Provided file is not a valid map file.')
+
         self.fpath = fpath
 
         with open(fpath, 'rb') as fobj:
