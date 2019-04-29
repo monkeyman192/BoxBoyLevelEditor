@@ -105,8 +105,8 @@ def pack_map(fpath, recompress=True):
         if len(fnames) == 0:
             raise FileNotFoundError("Directory has no step#.bin files.")
     elif re.match('step[0-9]{2}.bin', op.split(fpath)[1]):
-            fnames.append(fpath)
-            fpath = op.dirname(fpath)
+        fnames.append(fpath)
+        fpath = op.dirname(fpath)
     fnames.sort()
 
     # we need to get some data first before rebuilding the file.
