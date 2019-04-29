@@ -329,7 +329,7 @@ kind:
    0 - starts off
    1 - starts on
  8 - Break block
- 9 - Something to do with a fixed camera position
+ 9 - AdjustCamera
 10 - StartDoor
 11 - Shutter
  param0 : direction : 0: vertical, 1: horizontal
