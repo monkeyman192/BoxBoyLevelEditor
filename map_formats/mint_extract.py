@@ -63,6 +63,7 @@ class Xbin():
             self._read_header(fobj)
 
     def _read_header(self, fobj):
+        data = ''
         self.magic = struct.unpack('4s', fobj.read(0x4))[0]             # 0x00
         if not self.magic == b'XBIN':
             raise ValueError('Provided file is not a valid BoxBoy map file')
@@ -81,7 +82,7 @@ class Xbin():
                 with Pointer(fobj):
                     with Pointer(fobj):
                         attribute = read_name(fobj)
-                        print(attribute.decode('utf'))
+                        data += attribute.decode('utf') + '\n'
                     read_int32(fobj)
                     read_int32(fobj)
                     read_int32(fobj)
@@ -90,6 +91,11 @@ class Xbin():
                         for _ in range(count):
                             with Pointer(fobj):
                                 with Pointer(fobj):
-                                    enum_name = read_name(fobj).decode('utf')
+                                    enum_name = read_name(fobj).decode(
+                                        'utf')
                                 enum_value = read_int32(fobj)
-                                print(enum_name, enum_value)
+                                data += (str(enum_name) + '\t' +
+                                         str(enum_value) + '\n')
+            if len(data) != 0:
+                with open(self.fpath.replace('xbin', 'txt'), 'w') as f:
+                    f.write(data)

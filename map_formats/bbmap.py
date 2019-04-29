@@ -23,7 +23,7 @@ class BBMap():
             self._read_gimmick_data(fobj)
             # skip whatever the next pointer goes to as it is always empty...
             fobj.seek(0x4, 1)
-            self._read_moving_platform_path_data(fobj)
+            self._read_event_data(fobj)
 
     def save(self):
         """ Export all the data. """
@@ -178,33 +178,32 @@ class BBMap():
         for gimmick in self.gimmick_data:
             data.write(bytes(gimmick))
 
-    def _read_moving_platform_path_data(self, fobj):
-        self.moving_platform_paths = list()
+    def _read_event_data(self, fobj):
+        self.events = list()
         with Pointer(fobj):
             count = read_int32(fobj)
             for _ in range(count):
                 with Pointer(fobj):
-                    self.moving_platform_paths.append(MovingPlatformPath(fobj))
+                    self.events.append(EventSequenceData(fobj))
 
-    def _write_moving_platform_path_data_pointer(self):
+    def _write_event_data_pointer(self):
         p = Pointer(self._bytes)
-        p.assign_data(lambda _data: self._write_moving_platform_path_data_info(
-            _data))
+        p.assign_data(lambda _data: self._write_event_data_info(_data))
         self.pointer_data['headers'].append(p)
         write_int32(self._bytes, 0)
 
-    def _write_moving_platform_path_data_info(self, data):
-        write_int32(data, len(self.moving_platform_paths))
-        for mpp in self.moving_platform_paths:
+    def _write_event_data_info(self, data):
+        write_int32(data, len(self.events))
+        for event in self.eventss:
             p = Pointer(self._bytes)
             p.assign_data(
-                lambda _data, mpp=mpp: self._write_moving_platform_path_data(
-                    _data, mpp))
+                lambda _data, event=event: self._write_event_data(
+                    _data, event))
             self.pointer_data['headers'].append(p)
             write_int32(data, 0)
 
-    def _write_moving_platform_path_data(self, data, mpp):
-        data.write(bytes(mpp))
+    def _write_event_data(self, data, event):
+        data.write(bytes(event))
 
     def __bytes__(self):
         # Write the header
@@ -251,6 +250,10 @@ class MovingPlatform():
         self.data = list()
         for _ in range(self.num_blocks):
             self.data.append(struct.unpack('<ii', fobj.read(0x8)))
+        print(self.x_start, self.y_start)
+        print(self.x_end, self.y_end)
+        print(self.num_blocks)
+        print(self.data)
 
     def __bytes__(self):
         _bytes = b''
@@ -262,17 +265,18 @@ class MovingPlatform():
         return _bytes
 
 
-class MovingPlatformPath():
+class EventSequenceData():
     def __init__(self, fobj):
         count = read_int32(fobj)
-        self.data = list()
+        self.event_data = list()
         for _ in range(count):
             self.data.append(struct.unpack('<iiiiiiii', fobj.read(0x20)))
+        print(self.event_data)
 
     def __bytes__(self):
-        _bytes = struct.pack('<i', len(self.data))
-        for data in self.data:
-            _bytes += struct.pack('<iiiiiiii', *data)
+        _bytes = struct.pack('<i', len(self.event_data))
+        for event in self.event_data:
+            _bytes += struct.pack('<iiiiiiii', *event)
         return _bytes
 
 

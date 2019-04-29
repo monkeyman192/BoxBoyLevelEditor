@@ -152,13 +152,23 @@ In the following table, the Event kind is specified by the `kind` value at `+0x4
 
 Many specific types simply have all the values as 0 it seems. The following list contains all the known parameters for any Events that have any params that are non-zero.
 
+- OnEnterScene (kind *0*)
+  
+  This should be used as the first `Event` in the `EventSequence` in you want the event to begin when the level starts.
+
 - Wait (kind *6*)
 
 | Param | Name  |                                Description |
 | :---- | :---: | -----------------------------------------: |
 | 0     | Time  | Time to delay in frame. Game runs at 60fps |
 
-- MoveLandCmd (kind *13*)
+- MoveLandInit (kind *13*)
+
+| Param |  Name  |                                Description |
+| :---- | :----: | -----------------------------------------: |
+| 0     | Target | index of the moving platform to initialise |
+
+- MoveLandCmd (kind *14*)
 
   | Param |        Name        |                                                                    Description |
   | :---- | :----------------: | -----------------------------------------------------------------------------: |
@@ -271,8 +281,9 @@ The Gimmick kind is specified by the `kind` value at `+0x4`.
   | Param | Datatype |    Name     |                                                  Description |
   | :---- | :------: | :---------: | -----------------------------------------------------------: |
   | 0     |  int32   |  Direction  |                                        Plus = 0<br>Minus = 1 |
-  | 1     |  int32   | Is a Toggle |                                 Single use = 0<br>Reusable = 1 |
+  | 1     |  int32   | Is a Toggle |                               Single use = 0<br>Reusable = 1 |
   | 2     |  int32   |   Target    | `wuid` of the door to open when pressed,<br>or -1 to toggle* |
+
     \* Only the (-) block Gimmick data needs the -1 value for Param2. The (+) block is 0 in this case.
 
 - Warp cloud (kind *23*)
@@ -280,7 +291,7 @@ The Gimmick kind is specified by the `kind` value at `+0x4`.
   | Param |    Datatype    |       Name       |                                                                  Description |
   | :---- | :------------: | :--------------: | ---------------------------------------------------------------------------: |
   | group |      n/a       |       n/a        |                                     Warp clouds should be paired into groups |
-  | 0     |     int32      |    Direction     |                                                             Up =0<br>Down = 1 |
+  | 0     |     int32      |    Direction     |                                                           Up = 0<br>Down = 1 |
   | 1     | (int16, int16) | Start coordinate |                                                       (initial x, initial y) |
   | 2     | (int16, int16) |    Dimensions    |                                                              (width, height) |
   | 3     |     int32      |   Linked group   | For up facing: group number to spit you out of.<br>For down facing: Always 0 |
