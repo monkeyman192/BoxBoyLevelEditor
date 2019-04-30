@@ -46,6 +46,27 @@ class MapEditor(Frame):
         self.dst_tv.generate('', self.paths['ROMFS_PATCH'])
         self.dst_tv.index()
 
+        # Add all the bindings
+
+        self.dst_tv.bind('<Return>', self.return_edit)
+        self.dst_tv.bind('<Tab>', self.tab_switch_src)
+        self.src_tv.bind('<Tab>', self.tab_switch_dst)
+
+    def return_edit(self, event):
+        self._edit_map()
+
+    def tab_switch_dst(self, event):
+        self.dst_tv.focus_set()
+        return 'break'
+
+    def tab_switch_src(self, event):
+        self.src_tv.focus_set()
+        return 'break'
+
+    def test(self, event):
+        print('hallo')
+        self.src_tv.focus_set()
+
 # region private functions
 
     def _check_exit(self):
