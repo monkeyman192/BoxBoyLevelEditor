@@ -11,6 +11,7 @@ import shutil
 from serialization.io import (read_int32, write_int32, write_int32_array,
                               Pointer)
 from gimmicks.Gimmicks import gimmick_factory
+from events.Events import event_factory
 
 
 class BBMap():
@@ -202,7 +203,7 @@ class BBMap():
 
     def _write_event_data_info(self, data):
         write_int32(data, len(self.events))
-        for event in self.eventss:
+        for event in self.events:
             p = Pointer(self._bytes)
             p.assign_data(
                 lambda _data, event=event: self._write_event_data(
@@ -230,7 +231,7 @@ class BBMap():
         p.assign_data(lambda _data: write_int32(_data, 0))
         self.pointer_data['headers'].append(p)
         write_int32(self._bytes, 0)
-        self._write_moving_platform_path_data_pointer()
+        self._write_event_data_pointer()
 
         # write all the pointer data. Do all headers then do data
         # swap entries 30 and 32 for some reason?!?
@@ -258,10 +259,6 @@ class MovingPlatform():
         self.data = list()
         for _ in range(self.num_blocks):
             self.data.append(struct.unpack('<ii', fobj.read(0x8)))
-        print(self.x_start, self.y_start)
-        print(self.x_end, self.y_end)
-        print(self.num_blocks)
-        print(self.data)
 
     def __bytes__(self):
         _bytes = b''
@@ -278,13 +275,18 @@ class EventSequenceData():
         count = read_int32(fobj)
         self.event_data = list()
         for _ in range(count):
-            self.event_data.append(struct.unpack('<iiiiiiii', fobj.read(0x20)))
-        print(self.event_data)
+            event_bytes = BytesIO(fobj.read(0x20))
+            self.event_data.append(event_factory(event_bytes))
+        # Some DEBUG printing
+        if len(self.event_data) != 0:
+            print('Event sequence:')
+            for event in self.event_data:
+                print(event)
 
     def __bytes__(self):
         _bytes = struct.pack('<i', len(self.event_data))
         for event in self.event_data:
-            _bytes += struct.pack('<iiiiiiii', *event)
+            _bytes += bytes(event)
         return _bytes
 
 
