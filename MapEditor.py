@@ -46,6 +46,12 @@ class MapEditor(Frame):
         self.dst_tv.generate('', self.paths['ROMFS_PATCH'])
         self.dst_tv.index()
 
+        # Add all the bindings
+
+        self.dst_tv.bind('<Return>', self.edit)
+        self.src_tv.bind('<Return>', self.decompile)
+        self.dst_tv.bind('<Tab>', self.tab_switch_src)
+        self.src_tv.bind('<Tab>', self.tab_switch_dst)
 # region private functions
 
     def _check_exit(self):
@@ -187,6 +193,23 @@ class MapEditor(Frame):
         self.paths['ROMFS_PATCH'] = filedialog.askdirectory(
             title="Select a directory to place the patch.")
         self.settings.write(self.paths)
+
+    # region public functions
+
+    def decompile(self, event):
+        self._decompile()
+
+    def edit(self, event):
+        self._edit_map()
+
+    def tab_switch_dst(self, event):
+        self.dst_tv.focus_set()
+        return 'break'
+
+    def tab_switch_src(self, event):
+        self.src_tv.focus_set()
+        return 'break'
+
 
 
 if __name__ == '__main__':
