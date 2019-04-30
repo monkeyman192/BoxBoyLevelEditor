@@ -55,9 +55,6 @@ class MapEditor(Frame):
 
         self.dst_tv.bind('<Control-s>', self.recompile)
 
-    def recompile(self, event):
-        self._recompile()
-
 # region private functions
 
     def _check_exit(self):
@@ -207,6 +204,9 @@ class MapEditor(Frame):
 
     def edit(self, event):
         self._edit_map()
+
+    def recompile(self, event):
+        self._recompile()
 
     def tab_switch_dst(self, event):
         self.dst_tv.focus_set()
