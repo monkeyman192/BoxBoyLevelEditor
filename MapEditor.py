@@ -48,8 +48,8 @@ class MapEditor(Frame):
 
         # Add all the bindings
 
-        self.dst_tv.bind('<Return>', self.return_edit)
-        self.src_tv.bind('<Return>', self.return_decompile)
+        self.dst_tv.bind('<Return>', self.edit)
+        self.src_tv.bind('<Return>', self.decompile)
         self.dst_tv.bind('<Tab>', self.tab_switch_src)
         self.src_tv.bind('<Tab>', self.tab_switch_dst)
 # region private functions
@@ -196,11 +196,11 @@ class MapEditor(Frame):
 
     # region public functions
 
-    def return_edit(self, event):
-        self._edit_map()
-
-    def return_decompile(self, event):
+    def decompile(self, event):
         self._decompile()
+
+    def edit(self, event):
+        self._edit_map()
 
     def tab_switch_dst(self, event):
         self.dst_tv.focus_set()
