@@ -125,6 +125,12 @@ class MapCanvas(Toplevel):
         self.canvas.bind('<B1-Motion>', self.drag_block)
         self.canvas.bind('<ButtonPress-3>', self._show_popup)
 
+        self.canvas.focus_set() # need to set focus for it to detect keyboard inputs
+        self.canvas.bind('<Left>', self.scroll_left)
+        self.canvas.bind('<Right>', self.scroll_right)
+        self.canvas.bind('<Up>', self.scroll_up)
+        self.canvas.bind('<Down>', self.scroll_down)
+
         self._draw_map_data()
 
         self.current_selection = None
@@ -132,6 +138,18 @@ class MapCanvas(Toplevel):
         self.curr_item_location = None
         self.add_item_location = None
         self.hints_shown = False
+
+    def scroll_left(self, event):
+        self.canvas.xview_moveto(self.canvas.xview()[0] - 1 / self.width)
+
+    def scroll_right(self, event):
+        self.canvas.xview_moveto(self.canvas.xview()[0] + 1 / self.width)
+
+    def scroll_up(self, event):
+        self.canvas.yview_moveto(self.canvas.yview()[0] - 1 / self.height)
+
+    def scroll_down(self, event):
+        self.canvas.yview_moveto(self.canvas.yview()[0] + 1 / self.height)
 
     def _add_gimmick(self, kind, **kwargs):
         # Toggle the gimmicks on First
