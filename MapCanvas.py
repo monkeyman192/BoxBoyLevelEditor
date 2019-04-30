@@ -125,6 +125,11 @@ class MapCanvas(Toplevel):
         self.canvas.bind('<B1-Motion>', self.drag_block)
         self.canvas.bind('<ButtonPress-3>', self._show_popup)
 
+        self.canvas.bind('<Left>', self.scroll_left)
+        self.canvas.bind('<Right>', self.scroll_right)
+        self.canvas.bind('<Up>', self.scroll_up)
+        self.canvas.bind('<Down>', self.scroll_down)
+
         self._draw_map_data()
 
         self.current_selection = None
@@ -932,6 +937,8 @@ class MapCanvas(Toplevel):
                 self.canvas.itemconfig(pb_data['bounds'], state=HIDDEN)
 
     def button_press(self, event):
+        self.canvas.focus_set()  # keybinds don't work without this
+
         self.current_selection = self.canvas.find_withtag("current")
 
         if len(self.current_selection) == 0:
@@ -1013,3 +1020,15 @@ class MapCanvas(Toplevel):
                 self.canvas.coords(self.current_selection, [x, y,
                                                             x + 32, y + 32])
             self.curr_item_location = (x, y)
+
+    def scroll_left(self, event):
+        self.canvas.xview_moveto(self.canvas.xview()[0] - 1 / self.width)
+
+    def scroll_right(self, event):
+        self.canvas.xview_moveto(self.canvas.xview()[0] + 1 / self.width)
+
+    def scroll_up(self, event):
+        self.canvas.yview_moveto(self.canvas.yview()[0] - 1 / self.height)
+
+    def scroll_down(self, event):
+        self.canvas.yview_moveto(self.canvas.yview()[0] + 1 / self.height)
