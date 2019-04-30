@@ -125,7 +125,6 @@ class MapCanvas(Toplevel):
         self.canvas.bind('<B1-Motion>', self.drag_block)
         self.canvas.bind('<ButtonPress-3>', self._show_popup)
 
-        self.canvas.focus_set() # need to set focus for it to detect keyboard inputs
         self.canvas.bind('<Left>', self.scroll_left)
         self.canvas.bind('<Right>', self.scroll_right)
         self.canvas.bind('<Up>', self.scroll_up)
@@ -950,6 +949,8 @@ class MapCanvas(Toplevel):
                 self.canvas.itemconfig(pb_data['bounds'], state=HIDDEN)
 
     def button_press(self, event):
+        self.canvas.focus_set()  # keybinds don't work without this
+
         self.current_selection = self.canvas.find_withtag("current")
 
         if len(self.current_selection) == 0:
