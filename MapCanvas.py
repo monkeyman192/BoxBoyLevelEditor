@@ -130,6 +130,8 @@ class MapCanvas(Toplevel):
         self.canvas.bind('<Up>', self.scroll_up)
         self.canvas.bind('<Down>', self.scroll_down)
 
+        self.canvas.bind('<Control-s>', self.export_map)
+
         self._draw_map_data()
 
         self.current_selection = None
@@ -137,6 +139,9 @@ class MapCanvas(Toplevel):
         self.curr_item_location = None
         self.add_item_location = None
         self.hints_shown = False
+
+    def export_map(self, event):
+        self._export_map()
 
     def _add_gimmick(self, kind, **kwargs):
         # Toggle the gimmicks on First

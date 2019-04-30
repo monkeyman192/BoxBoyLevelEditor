@@ -52,6 +52,12 @@ class MapEditor(Frame):
         self.src_tv.bind('<Return>', self.decompile)
         self.dst_tv.bind('<Tab>', self.tab_switch_src)
         self.src_tv.bind('<Tab>', self.tab_switch_dst)
+
+        self.dst_tv.bind('<Control-s>', self.recompile)
+
+    def recompile(self, event):
+        self._recompile()
+
 # region private functions
 
     def _check_exit(self):
