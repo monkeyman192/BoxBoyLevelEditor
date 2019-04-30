@@ -3,11 +3,11 @@ import os
 import os.path as op
 import shutil
 
-from FileTreeview import FileTreeview
+from widgets.FileTreeview import FileTreeview
 from Settings import Settings
 from serialization.mappack import unpack_map, pack_map
 from map_formats.read_map import extract_map_data
-from MapCanvas import MapCanvas
+from windows.MapCanvas import MapCanvas
 from map_formats.bbmap import BBMap
 
 
