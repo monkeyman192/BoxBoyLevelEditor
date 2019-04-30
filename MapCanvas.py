@@ -1008,8 +1008,8 @@ class MapCanvas(Toplevel):
             x = 32 * (self.canvas.canvasx(event.x) // 32)
             y = 32 * (self.canvas.canvasy(event.y) // 32)
         else:
-            x = 16 * (self.canvas.canvasx(event.x) // 16)
-            y = 16 * (self.canvas.canvasy(event.y) // 16)
+            x = 16 * (self.canvas.canvasx(event.x + 8) // 16) - 16
+            y = 16 * (self.canvas.canvasy(event.y + 8) // 16) + 48
         if ((x, y) != self.curr_item_location and
                 'IMMOVABLE' not in self.canvas.gettags(
                     self.current_selection)):
