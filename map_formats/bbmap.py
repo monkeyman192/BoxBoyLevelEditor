@@ -278,7 +278,7 @@ class EventSequenceData():
         count = read_int32(fobj)
         self.event_data = list()
         for _ in range(count):
-            self.data.append(struct.unpack('<iiiiiiii', fobj.read(0x20)))
+            self.event_data.append(struct.unpack('<iiiiiiii', fobj.read(0x20)))
         print(self.event_data)
 
     def __bytes__(self):

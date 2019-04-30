@@ -138,18 +138,6 @@ class MapCanvas(Toplevel):
         self.add_item_location = None
         self.hints_shown = False
 
-    def scroll_left(self, event):
-        self.canvas.xview_moveto(self.canvas.xview()[0] - 1 / self.width)
-
-    def scroll_right(self, event):
-        self.canvas.xview_moveto(self.canvas.xview()[0] + 1 / self.width)
-
-    def scroll_up(self, event):
-        self.canvas.yview_moveto(self.canvas.yview()[0] - 1 / self.height)
-
-    def scroll_down(self, event):
-        self.canvas.yview_moveto(self.canvas.yview()[0] + 1 / self.height)
-
     def _add_gimmick(self, kind, **kwargs):
         # Toggle the gimmicks on First
         if not self.show_gimmicks.get():
@@ -1032,3 +1020,15 @@ class MapCanvas(Toplevel):
                 self.canvas.coords(self.current_selection, [x, y,
                                                             x + 32, y + 32])
             self.curr_item_location = (x, y)
+
+    def scroll_left(self, event):
+        self.canvas.xview_moveto(self.canvas.xview()[0] - 1 / self.width)
+
+    def scroll_right(self, event):
+        self.canvas.xview_moveto(self.canvas.xview()[0] + 1 / self.width)
+
+    def scroll_up(self, event):
+        self.canvas.yview_moveto(self.canvas.yview()[0] - 1 / self.height)
+
+    def scroll_down(self, event):
+        self.canvas.yview_moveto(self.canvas.yview()[0] + 1 / self.height)
