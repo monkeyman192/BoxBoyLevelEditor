@@ -130,6 +130,9 @@ class MapCanvas(Toplevel):
         self.canvas.bind('<Up>', self.scroll_up)
         self.canvas.bind('<Down>', self.scroll_down)
 
+        # set focus on the canvas so that keyboard controls work on map editor startup
+        self.canvas.focus_set()
+
         self._draw_map_data()
 
         self.current_selection = None
