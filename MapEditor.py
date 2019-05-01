@@ -47,13 +47,19 @@ class MapEditor(Frame):
         self.dst_tv.index()
 
         # Add all the bindings
-
         self.dst_tv.bind('<Return>', self.edit)
         self.src_tv.bind('<Return>', self.decompile)
         self.dst_tv.bind('<Tab>', self.tab_switch_src)
         self.src_tv.bind('<Tab>', self.tab_switch_dst)
 
         self.dst_tv.bind('<Control-s>', self.recompile)
+
+        # select the first element in each tree by default for keyboard controls to work on startup
+        self.src_tv.focus("I001")
+        self.src_tv.selection_set("I001")
+        self.src_tv.focus_set()
+        self.dst_tv.focus("I001")
+        self.dst_tv.selection_set("I001")
 
 # region private functions
 
