@@ -583,25 +583,29 @@ class WidgetTable(Frame):
                         # otherwise we have been passed a (at least partial)
                         # dictionary of data
                         if 'var' in val:
-                            var = val['var']
+                            var = val.pop('var')
                             if isinstance(var, Variable):
                                 if hasattr(var, 'copy'):
                                     new_dict['var'] = var.copy()
                                 else:
                                     new_dict['var'] = var
                             else:
-                                new_dict['var'].set(var)
+                                # The variable won't be instantiated yet.
+                                # Do that now
+                                new_dict['var'] = new_dict['var']().set(var)
                         if 'text' in val:
-                            new_dict['text'] = val['text']
+                            new_dict['text'] = val.pop('text')
                         if 'func' in val:
                             if val.get('func_has_row_ctx', False):
                                 # if the function requires knowledge of the row
                                 # it is then we give it to it.
-                                new_dict['func'] = lambda x=idx: val['func'](x)
+                                new_dict['func'] = lambda x=idx: val.pop('func')(x)  # noqa
                             else:
-                                new_dict['func'] = val['func']
+                                new_dict['func'] = val.pop('func')
                         if 'configs' in val:
-                            new_dict['configs'] = val['configs']
+                            new_dict['configs'] = val.pop('configs')
+                        # also add any other data provided in the dictionary
+                        new_dict.update(val)
                     var = new_dict
                 else:
                     if isinstance(val, Variable):

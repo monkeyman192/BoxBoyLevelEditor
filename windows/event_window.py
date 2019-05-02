@@ -1,4 +1,4 @@
-from tkinter import Toplevel, IntVar, StringVar, Entry, Frame
+from tkinter import Toplevel, IntVar, StringVar, Entry, Frame, Label, DISABLED
 from tkinter.ttk import Combobox
 
 from widgets import WidgetTable, NamedEntry
@@ -34,8 +34,13 @@ class EventWindow(Toplevel):
             self.frame,
             headings=['wuid', 'kind', 'param0', 'param1', 'param2', 'param3',
                       'param4', 'param5'],
-            pattern=[IntVar, StringVar, IntVar, IntVar, IntVar, IntVar,
-                     IntVar, IntVar],
+            pattern=[IntVar, StringVar,
+                     {'var': IntVar, '_name': 'p0'},
+                     {'var': IntVar, '_name': 'p1'},
+                     {'var': IntVar, '_name': 'p2'},
+                     {'var': IntVar, '_name': 'p3'},
+                     {'var': IntVar, '_name': 'p4'},
+                     {'var': IntVar, '_name': 'p5'}],
             widgets_pattern=[Entry, Entry,
                              lambda x: NamedEntry(x, 'p0'),
                              lambda x: NamedEntry(x, 'p1'),
@@ -56,14 +61,18 @@ class EventWindow(Toplevel):
     def add_event_from_selection(self):
         selected_kind = self.event_table.nameselection.get()
         kind = EVENT_KINDS.index(selected_kind)
-        print(kind)
         handler = EventHandler(self.event_data)
         new_event = handler.new_event(kind)
         # Iterate over the parameters. If there is a name for it, then change
         # the NamedEntry's name to that.
+        data = list()
+        data.append(new_event.wuid)
+        data.append(selected_kind)
         for i in range(6):
-            if new_event.param_names[i] != 'param{0}'.format(i):
-                print(new_event.param_names[i])
+            param_name = new_event.param_names[i]
+            if param_name != 'param{0}'.format(i):
+                data.append({'var': 0, '_name': param_name})
             else:
                 # make it so that the value can't be modified??
-                print('param{0} cannot be modified'.format(i))
+                data.append({'configs': {'state': DISABLED}})
+        return data
