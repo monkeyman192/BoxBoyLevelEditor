@@ -592,7 +592,8 @@ class WidgetTable(Frame):
                             else:
                                 # The variable won't be instantiated yet.
                                 # Do that now
-                                new_dict['var'] = new_dict['var']().set(var)
+                                new_dict['var'] = new_dict['var']()
+                                new_dict['var'].set(var)
                         if 'text' in val:
                             new_dict['text'] = val.pop('text')
                         if 'func' in val:
