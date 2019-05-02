@@ -196,7 +196,7 @@ class Gimmick():
 class Gimmick_SpawnPoint(Gimmick):
     """ Gimmick # 0 """
     def __init__(self, fobj):
-        self.param_names = ('number', 'spawn_type', 'param2', 'position',
+        self.param_names = ('number', 'spawn_type', 'direction', 'position',
                             'extent', 'param5')
         self.param_fmts = ('<i', '<i', '<i', '<hh', '<hh', '<i')
         super(Gimmick_SpawnPoint, self).__init__(fobj)
@@ -205,7 +205,7 @@ class Gimmick_SpawnPoint(Gimmick):
     def image(self, data):
         # If it is the initial spawn, draw a little Qbby
         if self.spawn_type == 0:
-            return data[self.kind]
+            return data[self.kind][self.direction]
         # otherwise draw the extent of the respawn region
         return {'drawn': [{'rectangle': (self.position[0], self.position[1],
                                          self.position[0] + self.extent[0],
@@ -217,7 +217,7 @@ class Gimmick_SpawnPoint(Gimmick):
                            'position': (self.position[0], self.position[1]),
                            'fill': '#FF0000',
                            'font': 'Times 18 bold'},
-                          {'image': data[self.kind],
+                          {'image': data[self.kind][self.direction],
                            'position': (self.x - 16, self.y)},
                           {'text': str(self.number),
                            'position': (self.x - 16, self.y),
@@ -239,6 +239,14 @@ class Gimmick_SpawnPoint(Gimmick):
     @spawn_type.setter
     def spawn_type(self, value):
         self.param1 = value
+
+    @property
+    def direction(self):
+        return self.param2
+
+    @direction.setter
+    def direction(self, value):
+        self.param2 = value
 
     @property
     def position(self):

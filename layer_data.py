@@ -17,7 +17,8 @@ MAP_DATA = {
 
 
 GIMMICKS = {
-    0: {'path': 'images\\Gimmicks\\00_Spawn.png'},
+    0: {0: {'path': 'images\\Gimmicks\\00_Spawn.png', 'mods': ['flip_x']},
+        1: {'path': 'images\\Gimmicks\\00_Spawn.png'}},
     2: {'path': 'images\\Gimmicks\\02_Door.png'},
     3: {2: {'path': 'images\\Gimmicks\\03_Laser.png', 'mods': ['rot_90']},
         4: {'path': 'images\\Gimmicks\\03_Laser.png'},
