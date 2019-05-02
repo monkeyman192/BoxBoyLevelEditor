@@ -50,13 +50,13 @@ def gimmick_factory(gimmick_bytes):
 
 
 class Gimmick():
-    def __init__(self, fobj):
+    def __init__(self, fobj=None):
         # Specify some values irrespective of whether we are loading from bytes
         # or not
-        if not self.param_fmts:
+        if not hasattr(self, 'param_fmts'):
             self.param_fmts = ('<i', '<i', '<i', '<i', '<i', '<i')
 
-        if not self.param_names:
+        if not hasattr(self, 'param_names'):
             self.param_names = ('param0', 'param1', 'param2', 'param3',
                                 'param4', 'param5')
 
@@ -80,16 +80,16 @@ class Gimmick():
     @staticmethod
     def new(wuid, kind, x, y, group, appearance=0, **kwargs):
         if kind == 3:
-            new_class = Gimmick_Laser(None)
+            new_class = Gimmick_Laser()
             new_class.direction = 8  # Up by default
         elif kind == 4:
-            new_class = Gimmick_Crown(None)
+            new_class = Gimmick_Crown()
         elif kind == 6:
-            new_class = Gimmick_Button(None)
+            new_class = Gimmick_Button()
         elif kind == 22:
-            new_class = Gimmick_Battery(None)
+            new_class = Gimmick_Battery()
         elif kind == 27:
-            new_class = Gimmick_Gravity(None)
+            new_class = Gimmick_Gravity()
             # Set some defaults
             new_class.position = (x, y)
             new_class.extent = (32, 32)  # 1x1 square by default
@@ -180,7 +180,7 @@ class Gimmick():
         return data.getvalue()
 
     def __getattr__(self, name):
-        if name.startswith('param'):
+        if name.startswith('param') and name[-1].isdigit():
             try:
                 param_num = int(name[-1])
             except ValueError:
@@ -267,7 +267,7 @@ class Gimmick_SpawnPoint(Gimmick):
 
 class Gimmick_Door(Gimmick):
     """ Gimmick # 2 """
-    def __init__(self, fobj):
+    def __init__(self, fobj=None):
         super(Gimmick_Door, self).__init__(fobj)
         self.name = 'Door'
 
@@ -278,7 +278,7 @@ class Gimmick_Door(Gimmick):
 
 class Gimmick_Laser(Gimmick):
     """ Gimmick # 3 """
-    def __init__(self, fobj):
+    def __init__(self, fobj=None):
         self.param_names = ('direction', 'param1', 'param2', 'param3',
                             'param4', 'param5')
 
@@ -299,14 +299,14 @@ class Gimmick_Laser(Gimmick):
 
 class Gimmick_Crown(Gimmick):
     """ Gimmick # 4 """
-    def __init__(self, fobj):
+    def __init__(self, fobj=None):
         super(Gimmick_Crown, self).__init__(fobj)
         self.name = 'Crown'
 
 
 class Gimmick_Button(Gimmick):
     """ Gimmick # 6 """
-    def __init__(self, fobj):
+    def __init__(self, fobj=None):
         self.param_names = ('direction', 'is_toggle', 'target_id', 'param3',
                             'param4', 'param5')
 
@@ -343,7 +343,7 @@ class Gimmick_Button(Gimmick):
 
 class Gimmick_ToggleBlock(Gimmick):
     """ Gimmick # 7 """
-    def __init__(self, fobj):
+    def __init__(self, fobj=None):
         self.param_names = ('initial_state', 'param1', 'param2', 'param3',
                             'param4', 'param5')
 
@@ -364,14 +364,14 @@ class Gimmick_ToggleBlock(Gimmick):
 
 class Gimmick_BreakBlock(Gimmick):
     """ Gimmick # 8 """
-    def __init__(self, fobj):
+    def __init__(self, fobj=None):
         super(Gimmick_BreakBlock, self).__init__(fobj)
         self.name = 'BreakBlock'
 
 
 class Gimmick_Shutter(Gimmick):
     """ Gimmick # 11 """
-    def __init__(self, fobj):
+    def __init__(self, fobj=None):
         self.param_names = ('direction', 'starts_open', 'param2', 'param3',
                             'param4', 'param5')
         super(Gimmick_Shutter, self).__init__(fobj)
@@ -399,7 +399,7 @@ class Gimmick_Shutter(Gimmick):
 
 class Gimmick_HelpArea(Gimmick):
     """ Gimmick # 13 """
-    def __init__(self, fobj):
+    def __init__(self, fobj=None):
         self.param_names = ('position', 'extent',
                             'player_position', 'player_extent',
                             'param4', 'param5')
@@ -460,7 +460,7 @@ class Gimmick_HelpArea(Gimmick):
 
 class Gimmick_FallSplinter(Gimmick):
     """ Gimmick # 17 """
-    def __init__(self, fobj):
+    def __init__(self, fobj=None):
         self.param_names = ('direction', 'rate', 'param2', 'param3', 'param4',
                             'param5')
         super(Gimmick_FallSplinter, self).__init__(fobj)
@@ -485,7 +485,7 @@ class Gimmick_FallSplinter(Gimmick):
 
 class Gimmick_Spikey(Gimmick):
     """ Gimmick # 18 """
-    def __init__(self, fobj):
+    def __init__(self, fobj=None):
         self.param_names = ('param0', 'param1', 'param2', 'param3',
                             'param4', 'param5')
         self.param_fmts = ('<hh', '<i', '<i', '<i', '<i', '<i')
@@ -495,7 +495,7 @@ class Gimmick_Spikey(Gimmick):
 
 class Gimmick_Battery(Gimmick):
     """ Gimmick # 22 """
-    def __init__(self, fobj):
+    def __init__(self, fobj=None):
         self.param_names = ('polarity', 'is_toggle', 'target_id', 'param3',
                             'param4', 'param5')
         super(Gimmick_Battery, self).__init__(fobj)
@@ -531,7 +531,7 @@ class Gimmick_Battery(Gimmick):
 
 class Gimmick_WarpCloud(Gimmick):
     """ Gimmick # 23 """
-    def __init__(self, fobj):
+    def __init__(self, fobj=None):
         self.param_names = ('direction', 'position', 'extent', 'out_group',
                             'param4', 'param5')
         self.param_fmts = ('<i', '<hh', '<hh', '<i', '<i', '<i')
@@ -578,7 +578,7 @@ class Gimmick_WarpCloud(Gimmick):
 
 class Gimmick_SpikeyEnd(Gimmick):
     """ Gimmick # 26 """
-    def __init__(self, fobj):
+    def __init__(self, fobj=None):
         self.param_names = ('target_id', 'param1', 'param2', 'param3',
                             'param4', 'param5')
         super(Gimmick_SpikeyEnd, self).__init__(fobj)
@@ -595,7 +595,7 @@ class Gimmick_SpikeyEnd(Gimmick):
 
 class Gimmick_Gravity(Gimmick):
     """ Gimmick # 27 """
-    def __init__(self, fobj):
+    def __init__(self, fobj=None):
         self.param_names = ('position', 'extent', 'is_active', 'direction',
                             'speed', 'param5')
         self.param_fmts = ('<hh', '<hh', '<i', '<i', '<i', '<i')

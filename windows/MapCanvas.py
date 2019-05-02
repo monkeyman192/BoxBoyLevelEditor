@@ -4,7 +4,7 @@ from tkinter import BooleanVar, IntVar, StringVar
 from tkinter import NORMAL, HIDDEN, VERTICAL, HORIZONTAL, ALL, DISABLED, RIDGE
 from PIL import Image, ImageTk
 
-from utils import check_int
+from utils.utils import check_int
 from layer_data import GIMMICKS, LAYER1, LAYER6, MAP_DATA
 from modify_image import apply_mods
 from gimmicks.GimmickHandler import GimmickHandler
@@ -12,6 +12,7 @@ from gimmicks.Gimmicks import Gimmick_Gravity, Gimmick_Shutter, Gimmick_Laser
 from SpriteHandler import get_sprite
 from pushblock_handler import (pushblock_image, update_bounds,
                                update_pushblock_sprites)
+from .event_window import EventWindow
 
 BLOCK_COLOURS = {1: '#000000',
                  2: '#FF0000',
@@ -631,6 +632,8 @@ class MapCanvas(Toplevel):
         # TODO: move
         Button(toggle_frame, text='Export', command=self._export_map).grid(
             column=0, row=9)
+        Button(toggle_frame, text='Edit Events',
+               command=self._edit_events).grid(column=0, row=10)
 
         # get map to expand fully
         map_frame.grid_columnconfigure(index=0, weight=1)
@@ -707,6 +710,9 @@ class MapCanvas(Toplevel):
                             tags='MAP', activeoutline=ACTIVEOUTLINE)
                     self.stage_data_tiles[ID] = (x, y)
         self.canvas.config(scrollregion=self.canvas.bbox(ALL))
+
+    def _edit_events(self):
+        EventWindow(self, self.stage_data.events)
 
     def _export_map(self):
         # Assign any modified data then save the map

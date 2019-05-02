@@ -1,7 +1,7 @@
 import os.path as op
 import os
 
-from EnhancedTreeview import EnhancedTreeview
+from .EnhancedTreeview import EnhancedTreeview
 
 
 class FileTreeview(EnhancedTreeview):
@@ -13,7 +13,7 @@ class FileTreeview(EnhancedTreeview):
 
         self.index_cache = dict()
 
-#region public methods
+# region public methods
 
     def generate(self, parent, directory=""):
         """
@@ -140,15 +140,11 @@ class FileTreeview(EnhancedTreeview):
         # reverse sort the removed files to go from the ends of the branches
         removed_files.sort(key=lambda x: len(x), reverse=True)
         # add any new files to the file tree
-        # TODO: check any file to see if it has a parent that is a BIDSObject
-        # (ie. BIDSTree, Project, Subject, Session), and if so then
-        # instantiate the folder as the child object and add it.
         for fullpath in added_files:
             base, file = op.split(fullpath)
             parent = self.sid_from_filepath(base)
             fname, ext = op.splitext(file)
 
-            #if op.isdir(fullpath):
             sid = self.ordered_insert(parent,
                                       values=[ext, fullpath],
                                       text=fname,
@@ -222,7 +218,7 @@ class FileTreeview(EnhancedTreeview):
                     return [sid]
         return rtn_list
 
-#region private methods
+# region private methods
 
     def _find_added_files(self):
         """ Return a list of all files paths in the folder that don't currently

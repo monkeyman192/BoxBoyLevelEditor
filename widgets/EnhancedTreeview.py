@@ -16,7 +16,7 @@ class EnhancedTreeview(Treeview):
 
         self.entryPopup = None
 
-#region public methods
+# region public methods
 
     def add_tags(self, id_, tags):
         """
@@ -55,7 +55,7 @@ class EnhancedTreeview(Treeview):
         print('double clicked')
 
         # close previous popups
-        #self.master.destroyPopups()
+        # self.master.destroyPopups()
 
         # what row and column was clicked on
         rowid = self.identify_row(event.y)
@@ -91,7 +91,7 @@ class EnhancedTreeview(Treeview):
 
         # first set the keypress bindings as we will assume they want to happen
         # first
-        #self.multiclick_func = kwargs.get("multiclick",None)
+        # self.multiclick_func = kwargs.get("multiclick",None)
         self.leftclick_func = kwargs.get("leftclick", None)
         self.OnLeftClick = self.leftclick_func
         self.rightclick_func = kwargs.get("rightclick", None)
@@ -164,7 +164,7 @@ class EnhancedTreeview(Treeview):
         self.heading(
             col, command=lambda: self.treeview_sort_column(col, not reverse))
 
-#region private methods
+# region private methods
 
     def _add_scrollbars(self):
         for orient in self.scrollbars:
@@ -211,7 +211,7 @@ class EnhancedTreeview(Treeview):
                 open_folders.append(sid)
         return open_folders
 
-#region properties
+# region properties
 
     @property
     def OnRightClick(self):

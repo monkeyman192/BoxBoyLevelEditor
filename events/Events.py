@@ -24,12 +24,15 @@ def event_factory(event_bytes):
 
 
 class Event():
-    def __init__(self, fobj):
+    def __init__(self, fobj=None):
         try:
             self.param_names
         except AttributeError:
             self.param_names = ('param0', 'param1', 'param2', 'param3',
                                 'param4', 'param5')
+
+        if fobj is None:
+            return
 
         self.wuid = read_int32(fobj)
         self.kind = read_int32(fobj)
@@ -44,6 +47,29 @@ class Event():
         self.param3 = read_int32(fobj)
         self.param4 = read_int32(fobj)
         self.param5 = read_int32(fobj)
+
+    @staticmethod
+    def new(wuid, kind):
+        if kind == 0:
+            new_class = Event_OnEnterScene()
+        elif kind == 6:
+            new_class = Event_Wait()
+        elif kind == 13:
+            new_class = Event_MoveLandInit()
+        elif kind == 14:
+            new_class = Event_MoveLandCmd()
+        elif kind == 17:
+            new_class = Event_Flag()
+        elif kind == 18:
+            new_class = Event_ToFlag()
+        elif kind == 19:
+            new_class = Event_DamageMoveLandInit()
+        else:
+            new_class = Event()
+        new_class.wuid = wuid
+        new_class.kind = kind
+
+        return new_class
 
     def __bytes__(self):
         """ Serialize the Event data. """
@@ -68,14 +94,14 @@ class Event():
 
 class Event_OnEnterScene(Event):
     """ Event # 0 """
-    def __init__(self, fobj):
+    def __init__(self, fobj=None):
         super(Event_OnEnterScene, self).__init__(fobj)
         self.name = 'OnEnterScene'
 
 
 class Event_Wait(Event):
     """ Event # 6 """
-    def __init__(self, fobj):
+    def __init__(self, fobj=None):
         self.param_names = ('time', 'param1', 'param2', 'param3',
                             'param4', 'param5')
         super(Event_Wait, self).__init__(fobj)
@@ -92,7 +118,7 @@ class Event_Wait(Event):
 
 class Event_MoveLandInit(Event):
     """ Event # 13 """
-    def __init__(self, fobj):
+    def __init__(self, fobj=None):
         self.param_names = ('target', 'param1', 'param2', 'param3',
                             'param4', 'param5')
         super(Event_MoveLandInit, self).__init__(fobj)
@@ -178,21 +204,21 @@ class Event_MoveLandCmd(Event):
 
 class Event_Flag(Event):
     """ Event # 17 """
-    def __init__(self, fobj):
+    def __init__(self, fobj=None):
         super(Event_Flag, self).__init__(fobj)
         self.name = 'Flag'
 
 
 class Event_ToFlag(Event):
     """ Event # 18 """
-    def __init__(self, fobj):
+    def __init__(self, fobj=None):
         super(Event_ToFlag, self).__init__(fobj)
         self.name = 'ToFlag'
 
 
 class Event_DamageMoveLandInit(Event):
     """ Event # 19 """
-    def __init__(self, fobj):
+    def __init__(self, fobj=None):
         self.param_names = ('target', 'param1', 'param2', 'param3',
                             'param4', 'param5')
         super(Event_DamageMoveLandInit, self).__init__(fobj)

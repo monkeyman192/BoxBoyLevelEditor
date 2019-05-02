@@ -272,8 +272,10 @@ class MovingPlatform():
 
 class EventSequenceData():
     def __init__(self, fobj):
-        count = read_int32(fobj)
         self.event_data = list()
+        if fobj is None:
+            return
+        count = read_int32(fobj)
         for _ in range(count):
             event_bytes = BytesIO(fobj.read(0x20))
             self.event_data.append(event_factory(event_bytes))
