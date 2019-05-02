@@ -1,12 +1,21 @@
 from tkinter import Toplevel, IntVar, StringVar, Entry, Frame
+from tkinter.ttk import Combobox
 
 from widgets import WidgetTable, NamedEntry
+from events import EventHandler
+
+
+EVENT_KINDS = ['OnEnterScene', 'OnEnterArea', 'OnCalled', 'OnCalledDirect',
+               'OnGroupDisappeared', 'CallChain', 'Wait', 'WaitWithLock',
+               'LockCamera', 'UnlockCamera', 'ControlCamera', 'AppearGroup',
+               'DisappearGroup', 'MoveLandInit', 'MoveLandCmd', 'ConveyorSet',
+               'ConveyorOverride', 'Flag', 'ToFlag', 'DamageMoveLandInit']
 
 
 class EventWindow(Toplevel):
-    def __init__(self, master, data=None):
+    def __init__(self, master, event_data):
         self.master = master
-        self.data = data
+        self.event_data = event_data
         Toplevel.__init__(self, self.master)
         self.withdraw()
 
@@ -16,6 +25,10 @@ class EventWindow(Toplevel):
     def _create_widgets(self):
         self.frame = Frame(self)
         self.frame.grid(sticky='nsew')
+
+        Label(self.frame, text='Select a sequence: ').grid(column=0, row=0)
+        self.seq_choice = Combobox(self.frame)
+        self.seq_choice.grid(column=1, row=0)
 
         self.event_table = WidgetTable(
             self.frame,
@@ -30,22 +43,27 @@ class EventWindow(Toplevel):
                              lambda x: NamedEntry(x, 'p3'),
                              lambda x: NamedEntry(x, 'p4'),
                              lambda x: NamedEntry(x, 'p5')],
-            add_options=['OnEnterScene', 'OnEnterArea', 'OnCalled',
-                         'OnCalledDirect', 'OnGroupDisappeared', 'Wait',
-                         'WaitWithLock', 'LockCamera', 'UnlockCamera',
-                         'ControlCamera', 'AppearGroup', 'DisappearGroup',
-                         'MoveLandInit', 'MoveLandCmd', 'ConveyorSet',
-                         'ConveyorOverride', 'Flag', 'ToFlag',
-                         'DamageMoveLandInit'],
+            add_options=EVENT_KINDS,
             adder_script=self.add_event_from_selection)
-        self.event_table.grid(sticky='nsew')
+        self.event_table.grid(column=0, row=1, columnspan=2, sticky='nsew')
 
         self.frame.grid_columnconfigure(0, weight=1)
-        self.frame.grid_rowconfigure(0, weight=1)
+        self.frame.grid_rowconfigure(1, weight=1)
 
         self.grid_columnconfigure(0, weight=1)
         self.grid_rowconfigure(0, weight=1)
 
     def add_event_from_selection(self):
         selected_kind = self.event_table.nameselection.get()
-        print(selected_kind)
+        kind = EVENT_KINDS.index(selected_kind)
+        print(kind)
+        handler = EventHandler(self.event_data)
+        new_event = handler.new_event(kind)
+        # Iterate over the parameters. If there is a name for it, then change
+        # the NamedEntry's name to that.
+        for i in range(6):
+            if new_event.param_names[i] != 'param{0}'.format(i):
+                print(new_event.param_names[i])
+            else:
+                # make it so that the value can't be modified??
+                print('param{0} cannot be modified'.format(i))

@@ -223,7 +223,6 @@ class MapEditor(Frame):
         return 'break'
 
 
-
 if __name__ == '__main__':
     root = Tk()
     app = MapEditor(master=root)

@@ -712,7 +712,7 @@ class MapCanvas(Toplevel):
         self.canvas.config(scrollregion=self.canvas.bbox(ALL))
 
     def _edit_events(self):
-        EventWindow(self)
+        EventWindow(self, self.stage_data.events)
 
     def _export_map(self):
         # Assign any modified data then save the map

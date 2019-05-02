@@ -133,6 +133,7 @@ In the following table, the Event kind is specified by the `kind` value at `+0x4
 | 2    |           OnCalled |
 | 3    |     OnCalledDirect |
 | 4    | OnGroupDisappeared |
+| 5    |          CallChain |
 | 6    |               Wait |
 | 7    |       WaitWithLock |
 | 8    |         LockCamera |
