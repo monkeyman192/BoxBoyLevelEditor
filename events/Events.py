@@ -109,8 +109,8 @@ class Event_MoveLandInit(Event):
 
 class Event_MoveLandCmd(Event):
     """ Event # 14 """
-    def __init__(self, fobj):
-        self.param_names = ('direction', 'speed', 'param2', 'moveKind',
+    def __init__(self, fobj=None):
+        self.param_names = ('direction', 'distance', 'speed', 'moveKind',
                             'startSE', 'endSE')
         super(Event_MoveLandCmd, self).__init__(fobj)
         self.name = 'MoveLandCmd'
@@ -128,14 +128,22 @@ class Event_MoveLandCmd(Event):
             raise ValueError
 
     @property
-    def speed(self):
+    def distance(self):
         return self.param1
+
+    @distance.setter
+    def distance(self, value):
+        self.param1 = value
+
+    @property
+    def speed(self):
+        return self.param2
 
     @speed.setter
     def speed(self, value):
         # speed must be one of 0, 1, 2, 3, or 4
         if value in [0, 1, 2, 3, 4]:
-            self.param1 = value
+            self.param2 = value
         else:
             raise ValueError
 

@@ -277,11 +277,6 @@ class EventSequenceData():
         for _ in range(count):
             event_bytes = BytesIO(fobj.read(0x20))
             self.event_data.append(event_factory(event_bytes))
-        # Some DEBUG printing
-        if len(self.event_data) != 0:
-            print('Event sequence:')
-            for event in self.event_data:
-                print(event)
 
     def __bytes__(self):
         _bytes = struct.pack('<i', len(self.event_data))

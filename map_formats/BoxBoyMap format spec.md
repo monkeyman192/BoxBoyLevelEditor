@@ -173,11 +173,13 @@ Many specific types simply have all the values as 0 it seems. The following list
   | Param |        Name        |                                                                    Description |
   | :---- | :----------------: | -----------------------------------------------------------------------------: |
   | 0     |     Direction      |                                    Down = 2<br>Left = 4<br>Right = 6<br>Up = 8 |
-  | 1     |       Speed        |              Slowest = 0<br>Slow = 1<br>Normal = 2<br> Fast = 3<br>Fastest = 4 |
-  | 2     |      Unknown       |                                                                        Unknown |
-  | 3     |      MoveKind      | UniformVel = 0<br>Accel = 1<br>Brake = 2<br>AccelAndBrake = 3<br>Immediate = 4 |
+  | 1     |      Distance      |                          Distance the blocks travel in the specified direction |
+  | 2     |       Speed        |              Slowest = 0<br>Slow = 1<br>Normal = 2<br> Fast = 3<br>Fastest = 4 |
+  | 3     |     MoveKind*      | UniformVel = 0<br>Accel = 1<br>Brake = 2<br>AccelAndBrake = 3<br>Immediate = 4 |
   | 4     | Start sound effect |                                                                     -1 if None |
   | 5     |  End sound effect  |                                                                     -1 if None |
+
+\* NB. Setting to anything other than 0 seems to not work...
 
 - Flag (kind *17*)
 
