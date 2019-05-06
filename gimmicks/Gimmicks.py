@@ -211,22 +211,6 @@ class Gimmick():
         else:
             raise AttributeError
 
-class Param_Descriptor():
-    def __init__(self, param):
-        self.param = param
-
-    def __get__(self, instance, owner):
-        got = getattr(instance, self.param)
-        if type(got) == tuple:
-            return got[1], got[0]
-        return got
-
-    def __set__(self, instance, value):
-        if type(value) == tuple:
-            setattr(instance, self.param, (value[1], value[0]))
-        else:
-            setattr(instance, self.param, value)
-
 class Gimmick_SpawnPoint(Gimmick):
     """ Gimmick # 0 """
 
@@ -431,3 +415,19 @@ class Gimmick_Gravity(Gimmick):
                            'width': 2,
                            'stipple': 'gray12',
                            'fill': '#0000FF'}]}
+
+class Param_Descriptor():
+    def __init__(self, param):
+        self.param = param
+
+    def __get__(self, instance, owner):
+        got = getattr(instance, self.param)
+        if type(got) == tuple:
+            return got[1], got[0]
+        return got
+
+    def __set__(self, instance, value):
+        if type(value) == tuple:
+            setattr(instance, self.param, (value[1], value[0]))
+        else:
+            setattr(instance, self.param, value)
