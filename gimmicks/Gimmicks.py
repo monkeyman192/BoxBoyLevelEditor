@@ -84,8 +84,6 @@ class Gimmick():
         elif kind == 3:
             new_class = Gimmick_Laser(None)
             new_class.direction = 8  # Up by default
-        elif kind == 4:
-            new_class = Gimmick_Crown(None)
         elif kind == 6:
             new_class = Gimmick_Button(None)
         elif kind == 7:
@@ -168,6 +166,12 @@ class Gimmick():
         gimmick_data.append(param5)
 
     def image(self, data):
+
+        if data.get(self.kind) is not None:
+            if 'path' not in data.get(self.kind):
+                first_param = getattr(self, self.param_names[0])
+                return data.get(self.kind)[first_param]
+
         return data.get(self.kind)
 
     def __bytes__(self):
@@ -284,10 +288,6 @@ class Gimmick_Door(Gimmick):
         super(Gimmick_Door, self).__init__(fobj)
         self.name = 'Door'
 
-    def __bytes__(self):
-        _bytes = super(Gimmick_Door, self).__bytes__()
-        return _bytes
-
 
 class Gimmick_Laser(Gimmick):
     """ Gimmick # 3 """
@@ -297,9 +297,6 @@ class Gimmick_Laser(Gimmick):
 
         super(Gimmick_Laser, self).__init__(fobj)
         self.name = 'Laser'
-
-    def image(self, data):
-        return data[self.kind][self.direction]
 
     @property
     def direction(self):
@@ -325,9 +322,6 @@ class Gimmick_Button(Gimmick):
 
         super(Gimmick_Button, self).__init__(fobj)
         self.name = 'Button'
-
-    def image(self, data):
-        return data[self.kind][self.direction]
 
     @property
     def direction(self):
@@ -363,9 +357,6 @@ class Gimmick_ToggleBlock(Gimmick):
         super(Gimmick_ToggleBlock, self).__init__(fobj)
         self.name = 'Toggle Block'
 
-    def image(self, data):
-        return data[self.kind][self.initial_state]
-
     @property
     def initial_state(self):
         return self.param0
@@ -389,9 +380,6 @@ class Gimmick_Shutter(Gimmick):
                             'param4', 'param5')
         super(Gimmick_Shutter, self).__init__(fobj)
         self.name = 'Shutter'
-
-    def image(self, data):
-        return data[self.kind][self.direction]
 
     @property
     def direction(self):
@@ -537,9 +525,6 @@ class Gimmick_Battery(Gimmick):
     @target_id.setter
     def target_id(self, value):
         self.param2 = value
-
-    def image(self, data):
-        return data[self.kind][self.polarity]
 
 
 class Gimmick_WarpCloud(Gimmick):
