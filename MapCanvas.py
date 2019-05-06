@@ -724,22 +724,6 @@ class MapCanvas(Toplevel):
             32 * (self.height - int(self.canvas.canvasy(event.y) // 32)))
         self.popup_menu.post(event.x_root, event.y_root)
 
-    def copy_paste(self):
-        kwargs = {}
-        gimmick = self.current_gimmick
-
-        for i, name in enumerate(gimmick.param_names):
-            name_var = getattr(self, 'param{0}_name'.format(str(i)))
-            param_value1 = getattr(self, 'param{0}_value_1'.format(str(i)))
-            param_value2 = getattr(self, 'param{0}_value_2'.format(str(i)))
-
-            if param_value2.get():
-                kwargs[name_var.get()] = (param_value1.get(), param_value2.get())
-            else:
-                kwargs[name_var.get()] = param_value1.get()
-
-        self._add_gimmick(gimmick.kind, **kwargs)
-
     def _show_gimmick_info(self, gimmick):
         """ Display the relevant info relating to the selected gimmick """
         self.gimmick_wuid.set(gimmick.wuid)
@@ -1022,6 +1006,22 @@ class MapCanvas(Toplevel):
         # reset the current selection to be None
         self.current_selection = None
         self.curr_item_location = None
+
+    def copy_paste(self):
+        kwargs = {}
+        gimmick = self.current_gimmick
+
+        for i, name in enumerate(gimmick.param_names):
+            name_var = getattr(self, 'param{0}_name'.format(str(i)))
+            param_value1 = getattr(self, 'param{0}_value_1'.format(str(i)))
+            param_value2 = getattr(self, 'param{0}_value_2'.format(str(i)))
+
+            if param_value2.get():
+                kwargs[name_var.get()] = (param_value1.get(), param_value2.get())
+            else:
+                kwargs[name_var.get()] = param_value1.get()
+
+        self._add_gimmick(gimmick.kind, **kwargs)
 
     def drag_block(self, event):
         if self.current_selection is None:
