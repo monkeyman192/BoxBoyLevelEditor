@@ -689,6 +689,9 @@ class MapCanvas(Toplevel):
         self.popup_menu.add_command(
             label='Toggle hint visibility',
             command=self._toggle_hint_gimmicks)
+        self.popup_menu.add_command(
+            label='Copy-Paste',
+            command=self.copy_paste)
 
     def _draw_map_data(self):
         for y, row in enumerate(self.stage_data.map_layout):
@@ -720,6 +723,22 @@ class MapCanvas(Toplevel):
             32 * int(self.canvas.canvasx(event.x) // 32),
             32 * (self.height - int(self.canvas.canvasy(event.y) // 32)))
         self.popup_menu.post(event.x_root, event.y_root)
+
+    def copy_paste(self):
+        kwargs = {}
+        gimmick = self.current_gimmick
+
+        for i, name in enumerate(gimmick.param_names):
+            name_var = getattr(self, 'param{0}_name'.format(str(i)))
+            param_value1 = getattr(self, 'param{0}_value_1'.format(str(i)))
+            param_value2 = getattr(self, 'param{0}_value_2'.format(str(i)))
+
+            if param_value2.get():
+                kwargs[name_var.get()] = (param_value1.get(), param_value2.get())
+            else:
+                kwargs[name_var.get()] = param_value1.get()
+
+        self._add_gimmick(gimmick.kind, **kwargs)
 
     def _show_gimmick_info(self, gimmick):
         """ Display the relevant info relating to the selected gimmick """
