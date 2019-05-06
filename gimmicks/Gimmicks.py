@@ -289,10 +289,6 @@ class Gimmick_Crown(Gimmick):
 class Gimmick_Button(Gimmick):
     """ Gimmick # 6 """
 
-    direction = Param_Descriptor("param0")
-    is_toggle = Param_Descriptor("param1")
-    target_id = Param_Descriptor("param2")
-
     def __init__(self, fobj):
         self.param_names = ('direction', 'is_toggle', 'target_id', 'param3',
                             'param4', 'param5')
