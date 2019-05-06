@@ -103,8 +103,6 @@ class MapEditor(Frame):
                 else:
                     raise TypeError("File selected is not a .cmp file.")
             for fname in included_files:
-                print("Hai: " + fname)
-
                 rel_path = op.relpath(op.dirname(fname),
                                       self.paths['ROMFS_ORIG'])
                 # convert
