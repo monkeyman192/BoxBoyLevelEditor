@@ -96,6 +96,10 @@ class Gimmick():
             new_class.is_active = 1      # Start active
             new_class.direction = kwargs.get('direction', 0)  # Up by default
             new_class.speed = 1
+        else:
+            new_class = Gimmick(None)
+            for key, value in kwargs.items():
+                setattr(new_class, key, value)
         new_class.wuid = wuid
         new_class.kind = kind
         new_class.x = x
