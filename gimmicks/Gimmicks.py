@@ -166,11 +166,9 @@ class Gimmick():
         gimmick_data.append(param5)
 
     def image(self, data):
-
         if data.get(self.kind) is not None:
             if 'path' not in data.get(self.kind):
-                first_param = getattr(self, self.param_names[0])
-                return data.get(self.kind)[first_param]
+                return data.get(self.kind)[self.param0]
 
         return data.get(self.kind)
 
@@ -209,9 +207,25 @@ class Gimmick():
         else:
             raise AttributeError
 
+class Param_Descriptor():
+    def __init__(self, param):
+        self.param = param
+
+    def __get__(self, instance, owner):
+        return getattr(instance, self.param)
+
+    def __set__(self, instance, value):
+        setattr(instance, self.param, value)
 
 class Gimmick_SpawnPoint(Gimmick):
     """ Gimmick # 0 """
+
+    number = Param_Descriptor("param0")
+    spawn_type = Param_Descriptor("param1")
+    direction = Param_Descriptor("param2")
+    position = Param_Descriptor("param3")
+    extent = Param_Descriptor("param4")
+
     def __init__(self, fobj):
         self.param_names = ('number', 'spawn_type', 'direction', 'position',
                             'extent', 'param5')
@@ -241,46 +255,6 @@ class Gimmick_SpawnPoint(Gimmick):
                            'fill': '#FF0000',
                            'font': 'Times 18 bold'}]}
 
-    @property
-    def number(self):
-        return self.param0
-
-    @number.setter
-    def number(self, value):
-        self.param0 = value
-
-    @property
-    def spawn_type(self):
-        return self.param1
-
-    @spawn_type.setter
-    def spawn_type(self, value):
-        self.param1 = value
-
-    @property
-    def direction(self):
-        return self.param2
-
-    @direction.setter
-    def direction(self, value):
-        self.param2 = value
-
-    @property
-    def position(self):
-        return (self.param3[1], self.param3[0])
-
-    @position.setter
-    def position(self, value):
-        self.param3 = (value[1], value[0])
-
-    @property
-    def extent(self):
-        return (self.param4[1], self.param4[0])
-
-    @extent.setter
-    def extent(self, value):
-        self.param4 = (value[1], value[0])
-
 
 class Gimmick_Door(Gimmick):
     """ Gimmick # 2 """
@@ -291,20 +265,15 @@ class Gimmick_Door(Gimmick):
 
 class Gimmick_Laser(Gimmick):
     """ Gimmick # 3 """
+
+    direction = Param_Descriptor("param0")
+
     def __init__(self, fobj):
         self.param_names = ('direction', 'param1', 'param2', 'param3',
                             'param4', 'param5')
 
         super(Gimmick_Laser, self).__init__(fobj)
         self.name = 'Laser'
-
-    @property
-    def direction(self):
-        return self.param0
-
-    @direction.setter
-    def direction(self, value):
-        self.param0 = value
 
 
 class Gimmick_Crown(Gimmick):
@@ -316,6 +285,11 @@ class Gimmick_Crown(Gimmick):
 
 class Gimmick_Button(Gimmick):
     """ Gimmick # 6 """
+
+    direction = Param_Descriptor("param0")
+    is_toggle = Param_Descriptor("param1")
+    target_id = Param_Descriptor("param2")
+
     def __init__(self, fobj):
         self.param_names = ('direction', 'is_toggle', 'target_id', 'param3',
                             'param4', 'param5')
@@ -323,47 +297,18 @@ class Gimmick_Button(Gimmick):
         super(Gimmick_Button, self).__init__(fobj)
         self.name = 'Button'
 
-    @property
-    def direction(self):
-        return self.param0
-
-    @direction.setter
-    def direction(self, value):
-        self.param0 = value
-
-    @property
-    def is_toggle(self):
-        return self.param1
-
-    @is_toggle.setter
-    def is_toggle(self, value):
-        self.param1 = value
-
-    @property
-    def target_id(self):
-        return self.param2
-
-    @target_id.setter
-    def target_id(self, value):
-        self.param2 = value
-
 
 class Gimmick_ToggleBlock(Gimmick):
     """ Gimmick # 7 """
+
+    initial_state = Param_Descriptor("param0")
+
     def __init__(self, fobj):
         self.param_names = ('initial_state', 'param1', 'param2', 'param3',
                             'param4', 'param5')
 
         super(Gimmick_ToggleBlock, self).__init__(fobj)
         self.name = 'Toggle Block'
-
-    @property
-    def initial_state(self):
-        return self.param0
-
-    @initial_state.setter
-    def initial_state(self, value):
-        self.param0 = value
 
 
 class Gimmick_BreakBlock(Gimmick):
@@ -375,31 +320,25 @@ class Gimmick_BreakBlock(Gimmick):
 
 class Gimmick_Shutter(Gimmick):
     """ Gimmick # 11 """
+
+    direction = Param_Descriptor("param0")
+    starts_open = Param_Descriptor("param1")
+
     def __init__(self, fobj):
         self.param_names = ('direction', 'starts_open', 'param2', 'param3',
                             'param4', 'param5')
         super(Gimmick_Shutter, self).__init__(fobj)
         self.name = 'Shutter'
 
-    @property
-    def direction(self):
-        return self.param0
-
-    @direction.setter
-    def direction(self, value):
-        self.param0 = value
-
-    @property
-    def starts_open(self):
-        return self.param1
-
-    @starts_open.setter
-    def starts_open(self, value):
-        self.param1 = value
-
 
 class Gimmick_HelpArea(Gimmick):
     """ Gimmick # 13 """
+
+    position = Param_Descriptor("param0")
+    extent = Param_Descriptor("param1")
+    player_position = Param_Descriptor("param2")
+    player_extent = Param_Descriptor("param3")
+
     def __init__(self, fobj):
         self.param_names = ('position', 'extent',
                             'player_position', 'player_extent',
@@ -426,62 +365,18 @@ class Gimmick_HelpArea(Gimmick):
                            'stipple': 'gray12',
                            'fill': '#E040E0'}]}
 
-    @property
-    def position(self):
-        return (self.param0[1], self.param0[0])
-
-    @position.setter
-    def position(self, value):
-        self.param0 = (value[1], value[0])
-
-    @property
-    def extent(self):
-        return (self.param1[1], self.param1[0])
-
-    @extent.setter
-    def extent(self, value):
-        self.param1 = (value[1], value[0])
-
-    @property
-    def player_position(self):
-        return (self.param2[1], self.param2[0])
-
-    @player_position.setter
-    def player_position(self, value):
-        self.param2 = (value[1], value[0])
-
-    @property
-    def player_extent(self):
-        return (self.param3[1], self.param3[0])
-
-    @player_extent.setter
-    def player_extent(self, value):
-        self.param3 = (value[1], value[0])
-
 
 class Gimmick_FallSplinter(Gimmick):
     """ Gimmick # 17 """
+
+    direction = Param_Descriptor("param0")
+    rate = Param_Descriptor("param1")
+
     def __init__(self, fobj):
         self.param_names = ('direction', 'rate', 'param2', 'param3', 'param4',
                             'param5')
         super(Gimmick_FallSplinter, self).__init__(fobj)
         self.name = 'Falling Spike'
-
-    @property
-    def direction(self):
-        return self.param0
-
-    @direction.setter
-    def direction(self, value):
-        self.param0 = value
-
-    @property
-    def rate(self):
-        return self.param1
-
-    @rate.setter
-    def rate(self, value):
-        self.param1 = value
 
 
 class Gimmick_Spikey(Gimmick):
@@ -496,39 +391,26 @@ class Gimmick_Spikey(Gimmick):
 
 class Gimmick_Battery(Gimmick):
     """ Gimmick # 22 """
+
+    polarity = Param_Descriptor("param0")
+    is_toggle = Param_Descriptor("param1")
+    target_id = Param_Descriptor("param2")
+
     def __init__(self, fobj):
         self.param_names = ('polarity', 'is_toggle', 'target_id', 'param3',
                             'param4', 'param5')
         super(Gimmick_Battery, self).__init__(fobj)
         self.name = 'Battery'
 
-    @property
-    def polarity(self):
-        return self.param0
-
-    @polarity.setter
-    def polarity(self, value):
-        self.param0 = value
-
-    @property
-    def is_toggle(self):
-        return self.param1
-
-    @is_toggle.setter
-    def is_toggle(self, value):
-        self.param1 = value
-
-    @property
-    def target_id(self):
-        return self.param2
-
-    @target_id.setter
-    def target_id(self, value):
-        self.param2 = value
-
 
 class Gimmick_WarpCloud(Gimmick):
     """ Gimmick # 23 """
+
+    direction = Param_Descriptor("param0")
+    position = Param_Descriptor("param1")
+    extent = Param_Descriptor("param2")
+    out_group = Param_Descriptor("param3")
+
     def __init__(self, fobj):
         self.param_names = ('direction', 'position', 'extent', 'out_group',
                             'param4', 'param5')
@@ -541,58 +423,28 @@ class Gimmick_WarpCloud(Gimmick):
                                          self.position[0] + self.extent[0],
                                          self.position[1] - self.extent[1])}]}
 
-    @property
-    def direction(self):
-        return self.param0
-
-    @direction.setter
-    def direction(self, value):
-        self.param0 = value
-
-    @property
-    def position(self):
-        return (self.param1[1], self.param1[0])
-
-    @position.setter
-    def position(self, value):
-        self.param1 = (value[1], value[0])
-
-    @property
-    def extent(self):
-        return (self.param2[1], self.param2[0])
-
-    @extent.setter
-    def extent(self, value):
-        self.param2 = (value[1], value[0])
-
-    @property
-    def out_group(self):
-        return self.param3
-
-    @out_group.setter
-    def out_group(self, value):
-        self.param3 = value
-
 
 class Gimmick_SpikeyEnd(Gimmick):
     """ Gimmick # 26 """
+
+    target_id = Param_Descriptor("param0")
+
     def __init__(self, fobj):
         self.param_names = ('target_id', 'param1', 'param2', 'param3',
                             'param4', 'param5')
         super(Gimmick_SpikeyEnd, self).__init__(fobj)
         self.name = 'Spikey Target'
 
-    @property
-    def target_id(self):
-        return self.param0
-
-    @target_id.setter
-    def target_id(self, value):
-        self.param0 = value
-
 
 class Gimmick_Gravity(Gimmick):
     """ Gimmick # 27 """
+
+    position = Param_Descriptor("param0")
+    extent = Param_Descriptor("param1")
+    is_active = Param_Descriptor("param2")
+    direction = Param_Descriptor("param3")
+    speed = Param_Descriptor("param4")
+
     def __init__(self, fobj):
         self.param_names = ('position', 'extent', 'is_active', 'direction',
                             'speed', 'param5')
@@ -608,43 +460,3 @@ class Gimmick_Gravity(Gimmick):
                            'width': 2,
                            'stipple': 'gray12',
                            'fill': '#0000FF'}]}
-
-    @property
-    def position(self):
-        return (self.param0[1], self.param0[0])
-
-    @position.setter
-    def position(self, value):
-        self.param0 = (value[1], value[0])
-
-    @property
-    def extent(self):
-        return (self.param1[1], self.param1[0])
-
-    @extent.setter
-    def extent(self, value):
-        self.param1 = (value[1], value[0])
-
-    @property
-    def is_active(self):
-        return self.param2
-
-    @is_active.setter
-    def is_active(self, value):
-        self.param2 = value
-
-    @property
-    def direction(self):
-        return self.param3
-
-    @direction.setter
-    def direction(self, value):
-        self.param3 = value
-
-    @property
-    def speed(self):
-        return self.param4
-
-    @speed.setter
-    def speed(self, value):
-        self.param4 = value
