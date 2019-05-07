@@ -98,7 +98,10 @@ class MapEditor(Frame):
                         if op.splitext(fname)[1] == '.cmp':
                             included_files.append(op.join(directory, fname))
             else:
-                included_files.append(src_fpath)
+                if op.splitext(src_fpath)[1] == '.cmp':
+                    included_files.append(src_fpath)
+                else:
+                    raise TypeError("File selected is not a .cmp file.")
             for fname in included_files:
                 rel_path = op.relpath(op.dirname(fname),
                                       self.paths['ROMFS_ORIG'])

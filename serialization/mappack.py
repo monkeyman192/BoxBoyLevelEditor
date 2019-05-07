@@ -50,6 +50,10 @@ def unpack_map(fname):
 
     filenum, = struct.unpack('<L', arcfile.read(4))
 
+    if filenum > 100:
+        # rudementary check; it seems to be really large if the file is the wrong kind of file
+        raise TypeError("Inputted file is not the right kind of file.")
+
     # bounds: list of tuples of form: (fname data start, data start)
     bounds = []
 
