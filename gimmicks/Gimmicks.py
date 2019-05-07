@@ -61,7 +61,7 @@ class Gimmick():
                                 'param4', 'param5')
 
         for i, name in enumerate(self.param_names):
-            if name[0:5] != "param":
+            if name[:5] != "param":
                 setattr(type(self), name, Param_Descriptor("param" + str(i)))
 
         self.name = 'Unknown'
@@ -210,6 +210,7 @@ class Gimmick():
                 return (0, 0)
         else:
             raise AttributeError
+
 
 class Gimmick_SpawnPoint(Gimmick):
     """ Gimmick # 0 """
@@ -415,6 +416,7 @@ class Gimmick_Gravity(Gimmick):
                            'width': 2,
                            'stipple': 'gray12',
                            'fill': '#0000FF'}]}
+
 
 class Param_Descriptor():
     def __init__(self, param):
