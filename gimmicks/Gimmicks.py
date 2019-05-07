@@ -79,15 +79,23 @@ class Gimmick():
 
     @staticmethod
     def new(wuid, kind, x, y, group, appearance=0, **kwargs):
-        if kind == 3:
+        if kind == 0:
+            new_class = Gimmick_SpawnPoint(None)
+        elif kind == 3:
             new_class = Gimmick_Laser(None)
             new_class.direction = 8  # Up by default
         elif kind == 4:
             new_class = Gimmick_Crown(None)
         elif kind == 6:
             new_class = Gimmick_Button(None)
+        elif kind == 7:
+            new_class = Gimmick_ToggleBlock(None)
+        elif kind == 13:
+            new_class = Gimmick_HelpArea(None)
         elif kind == 22:
             new_class = Gimmick_Battery(None)
+        elif kind == 23:
+            new_class = Gimmick_WarpCloud(None)
         elif kind == 27:
             new_class = Gimmick_Gravity(None)
             # Set some defaults
@@ -98,14 +106,15 @@ class Gimmick():
             new_class.speed = 1
         else:
             new_class = Gimmick(None)
-            for key, value in kwargs.items():
-                setattr(new_class, key, value)
         new_class.wuid = wuid
         new_class.kind = kind
         new_class.x = x
         new_class.y = y
         new_class.group = group
         new_class.appearance = appearance
+
+        for key, value in kwargs.items():
+            setattr(new_class, key, value)
         return new_class
 
     def load_parameters(self, fobj):
