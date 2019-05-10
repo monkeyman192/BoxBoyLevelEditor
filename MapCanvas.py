@@ -1012,16 +1012,10 @@ class MapCanvas(Toplevel):
         gimmick = self.current_gimmick
 
         kwargs["name"] = gimmick.name
+        kwargs["param_names"] = gimmick.param_names
 
         for i, name in enumerate(gimmick.param_names):
-            name_var = getattr(self, 'param{0}_name'.format(str(i)))
-            param_value1 = getattr(self, 'param{0}_value_1'.format(str(i)))
-            param_value2 = getattr(self, 'param{0}_value_2'.format(str(i)))
-
-            if param_value2.get():
-                kwargs[name_var.get()] = (param_value1.get(), param_value2.get())
-            else:
-                kwargs[name_var.get()] = param_value1.get()
+            kwargs[name] = getattr(gimmick, name)
 
         self._add_gimmick(gimmick.kind, **kwargs)
 
