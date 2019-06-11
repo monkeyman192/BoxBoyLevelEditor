@@ -39,6 +39,7 @@ def unpack_map(fname):
 
     # Read the Magic number/version(?)
     if arcfile.read(8) != b'XBIN\x34\x12\x02\x00':
+        arcfile.close()
         raise TypeError('Provided file is not a valid XBIN archive')
 
     # read the file size:
@@ -52,6 +53,7 @@ def unpack_map(fname):
 
     if filenum > 100:
         # rudementary check; it seems to be really large if the file is the wrong kind of file
+        arcfile.close()
         raise TypeError("Inputted file is not the right kind of file.")
 
     # bounds: list of tuples of form: (fname data start, data start)
