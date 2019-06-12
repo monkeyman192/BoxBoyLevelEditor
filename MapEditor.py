@@ -182,6 +182,12 @@ class MapEditor(Frame):
 
         Button(bottom_frame, text='Decompile', command=self._decompile).grid(
             column=1, row=0)
+        Button(bottom_frame, text='Recompile', command=self._recompile).grid(
+            column=2, row=0)
+        Button(bottom_frame, text='Save', command=self._save).grid(
+            column=3, row=0)
+        Button(bottom_frame, text='Edit', command=self._edit_map).grid(
+            column=4, row=0)
 
         Button(bottom_bottom_frame, text='Help', command=lambda: print("Running is not implemented yet...")).grid(
             column=1, row=0)
@@ -191,13 +197,6 @@ class MapEditor(Frame):
         # TODO Citra compatibility (be able to run Citra with Boxboy through the "Run" button)
         Button(bottom_bottom_frame, text='Exit', command=self.master.destroy).grid(
             column=3, row=0)
-
-        Button(bottom_frame, text='Recompile', command=self._recompile).grid(
-            column=2, row=0)
-        Button(bottom_frame, text='Save', command=self._save).grid(
-            column=3, row=0)
-        Button(bottom_frame, text='Edit', command=self._edit_map).grid(
-            column=4, row=0)
 
         # Button(bottom_frame, text='Extract', command=self._extract).grid(
         #     column=3, row=0) # I'm not sure what Extract is used for, so I'm just commenting out in case it is needed
