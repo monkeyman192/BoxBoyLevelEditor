@@ -143,9 +143,9 @@ class MapEditor(Frame):
         mainframe.grid(row=0, column=0, sticky='nsew')
         Label(mainframe, text='Source').grid(row=0, column=0, sticky='ew')
         Label(mainframe, text='Patch').grid(row=0, column=1, sticky='ew')
-        Label(mainframe, text='Info').grid(row=0, column=2, sticky='ew')
+        # TODO add info panel
         src_tv_frame = Frame(mainframe)
-        src_tv_frame.grid(row=1, column=0, sticky='nsew')
+        src_tv_frame.grid(row=1, column=0, sticky='nsew', padx=10)
         self.src_tv = FileTreeview(src_tv_frame, self.paths['ROMFS_ORIG'],
                                    columns=["dtype", "filepath"],
                                    selectmode='extended',
@@ -160,7 +160,7 @@ class MapEditor(Frame):
         self.src_tv.pack(expand=True, fill=BOTH)
 
         dst_tv_frame = Frame(mainframe)
-        dst_tv_frame.grid(row=1, column=1, sticky='nsew')
+        dst_tv_frame.grid(row=1, column=1, sticky='nsew', padx=10)
         self.dst_tv = FileTreeview(dst_tv_frame, self.paths['ROMFS_PATCH'],
                                    columns=["dtype", "filepath"],
                                    selectmode='extended',
@@ -176,18 +176,31 @@ class MapEditor(Frame):
 
         # bottom frame
         bottom_frame = Frame(mainframe)
-        bottom_frame.grid(column=0, row=2, columnspan=3)
+        bottom_frame.grid(column=0, row=2, columnspan=3, pady=10)
+        bottom_bottom_frame = Frame(bottom_frame)
+        bottom_bottom_frame.grid(column=0, row=1, columnspan=10, pady=10)
 
-        Button(bottom_frame, text='Exit', command=self.master.destroy).grid(
-            column=0, row=0)
         Button(bottom_frame, text='Decompile', command=self._decompile).grid(
             column=1, row=0)
+
+        Button(bottom_bottom_frame, text='Help', command=lambda: print("Running is not implemented yet...")).grid(
+            column=1, row=0)
+        # TODO help menu with bindings (and potentially tips too)
+        Button(bottom_bottom_frame, text='Run', command=lambda: print("Running is not implemented yet...")).grid(
+            column=2, row=0, ipadx=10)
+        # TODO Citra compatibility (be able to run Citra with Boxboy through the "Run" button)
+        Button(bottom_bottom_frame, text='Exit', command=self.master.destroy).grid(
+            column=3, row=0)
+
         Button(bottom_frame, text='Recompile', command=self._recompile).grid(
             column=2, row=0)
-        Button(bottom_frame, text='Extract', command=self._extract).grid(
+        Button(bottom_frame, text='Save', command=self._save).grid(
             column=3, row=0)
         Button(bottom_frame, text='Edit', command=self._edit_map).grid(
             column=4, row=0)
+
+        # Button(bottom_frame, text='Extract', command=self._extract).grid(
+        #     column=3, row=0) # I'm not sure what Extract is used for, so I'm just commenting out in case it is needed
 
         mainframe.grid_rowconfigure(index=0, weight=0)
         mainframe.grid_rowconfigure(index=1, weight=1)
