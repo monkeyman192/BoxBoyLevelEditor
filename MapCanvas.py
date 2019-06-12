@@ -125,12 +125,12 @@ class MapCanvas(Toplevel):
         self.canvas.bind('<B1-Motion>', self.drag_block)
         self.canvas.bind('<ButtonPress-3>', self._show_popup)
 
-        self.canvas.bind('<Left>', self.scroll_left)
-        self.canvas.bind('<Right>', self.scroll_right)
-        self.canvas.bind('<Up>', self.scroll_up)
-        self.canvas.bind('<Down>', self.scroll_down)
+        self.canvas.bind('<Left>', lambda event: self.canvas.xview_moveto(self.canvas.xview()[0] - 1 / self.width))
+        self.canvas.bind('<Right>', lambda event: self.canvas.xview_moveto(self.canvas.xview()[0] + 1 / self.width))
+        self.canvas.bind('<Up>', lambda event: self.canvas.yview_moveto(self.canvas.yview()[0] - 1 / self.height))
+        self.canvas.bind('<Down>', lambda event: self.canvas.yview_moveto(self.canvas.yview()[0] + 1 / self.height))
 
-        self.canvas.bind('<Control-s>', self.export_map)
+        self.canvas.bind('<Control-s>', lambda event: self._export_map())
 
         # set focus on the canvas so that keyboard controls work on map editor startup
         self.canvas.focus_set()
@@ -1040,18 +1040,3 @@ class MapCanvas(Toplevel):
                 self.canvas.coords(self.current_selection, [x, y,
                                                             x + 32, y + 32])
             self.curr_item_location = (x, y)
-
-    def export_map(self, event):
-        self._export_map()
-
-    def scroll_left(self, event):
-        self.canvas.xview_moveto(self.canvas.xview()[0] - 1 / self.width)
-
-    def scroll_right(self, event):
-        self.canvas.xview_moveto(self.canvas.xview()[0] + 1 / self.width)
-
-    def scroll_up(self, event):
-        self.canvas.yview_moveto(self.canvas.yview()[0] - 1 / self.height)
-
-    def scroll_down(self, event):
-        self.canvas.yview_moveto(self.canvas.yview()[0] + 1 / self.height)

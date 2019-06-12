@@ -47,13 +47,13 @@ class MapEditor(Frame):
         self.dst_tv.index()
 
         # Add all the bindings
-        self.dst_tv.bind('<Return>', self.edit)
-        self.src_tv.bind('<Return>', self.decompile)
+        self.dst_tv.bind('<Return>', lambda event: self._edit_map())
+        self.src_tv.bind('<Return>', lambda event: self._decompile())
         self.dst_tv.bind('<Tab>', self.tab_switch_src)
         self.src_tv.bind('<Tab>', self.tab_switch_dst)
 
-        self.dst_tv.bind('<Control-r>', self.recompile)
-        self.dst_tv.bind('<Control-s>', self.save)
+        self.dst_tv.bind('<Control-r>', lambda event: self._recompile())
+        self.dst_tv.bind('<Control-s>', lambda event: self._save())
 
         # select the first element in each tree by default for keyboard controls to work on startup
         self.src_tv.focus("I001")
@@ -219,18 +219,6 @@ class MapEditor(Frame):
         self.settings.write(self.paths)
 
     # region public functions
-
-    def decompile(self, event):
-        self._decompile()
-
-    def edit(self, event):
-        self._edit_map()
-
-    def recompile(self, event):
-        self._recompile()
-
-    def save(self, event):
-        self._save()
 
     def tab_switch_dst(self, event):
         self.dst_tv.focus_set()
