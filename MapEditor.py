@@ -125,11 +125,11 @@ class MapEditor(Frame):
     def _save(self):
         selection = op.relpath(self.dst_tv.get_filepath(self.dst_tv.selection()), self.paths['ROMFS_PATCH'])
         packed_dir = op.dirname(selection)
-        patch_archive = self.paths['ROMFS_PATCH'] + "/" + packed_dir + "\\Archive2.bin.cmp"
-        rom_archive = self.paths['ROMFS_ORIG'] + "/" + packed_dir + "\\Archive.bin.cmp"
+        patch_archive = op.join(self.paths['ROMFS_PATCH'], packed_dir, "Archive2.bin.cmp")
+        rom_archive = op.join(self.paths['ROMFS_ORIG'],  packed_dir, "Archive.bin.cmp")
 
         if not op.exists(patch_archive):
-            patch_archive = self.paths['ROMFS_PATCH'] + "/" + selection + "\\Archive2.bin.cmp"
+            patch_archive = op.join(self.paths['ROMFS_PATCH'], selection, "Archive2.bin.cmp")
 
         shutil.copy(patch_archive, rom_archive)
 
