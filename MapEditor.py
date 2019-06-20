@@ -1,3 +1,5 @@
+import subprocess
+import threading
 from tkinter import Tk, Frame, Button, filedialog, Label, BOTH
 import os
 import os.path as op
@@ -131,7 +133,7 @@ class MapEditor(Frame):
         selection = op.relpath(self.dst_tv.get_filepath(self.dst_tv.selection()), self.paths['ROMFS_PATCH'])
         packed_dir = op.dirname(selection)
         patch_archive = op.join(self.paths['ROMFS_PATCH'], packed_dir, "Archive2.bin.cmp")
-        rom_archive = op.join(self.paths['ROMFS_ORIG'],  packed_dir, "Archive.bin.cmp")
+        rom_archive = op.join(self.paths['ROMFS_ORIG'], packed_dir, "Archive.bin.cmp")
 
         if not op.exists(patch_archive):
             patch_archive = op.join(self.paths['ROMFS_PATCH'], selection, "Archive2.bin.cmp")
@@ -189,10 +191,10 @@ class MapEditor(Frame):
         Button(bottom_frame, text='Edit', command=self._edit_map).grid(
             column=4, row=0)
 
-        Button(bottom_bottom_frame, text='Help', command=lambda: print("Running is not implemented yet...")).grid(
+        Button(bottom_bottom_frame, text='Help', command=lambda: print("Help is not implemented yet...")).grid(
             column=1, row=0)
         # TODO help menu with bindings (and potentially tips too)
-        Button(bottom_bottom_frame, text='Run', command=lambda: print("Running is not implemented yet...")).grid(
+        Button(bottom_bottom_frame, text='Run', command=self._run).grid(
             column=2, row=0, ipadx=10)
         # TODO Citra compatibility (be able to run Citra with Boxboy through the "Run" button)
         Button(bottom_bottom_frame, text='Exit', command=self.master.destroy).grid(
@@ -227,6 +229,22 @@ class MapEditor(Frame):
 
     def _right_click_dst_entry(self, *args):
         pass
+
+    def _run(self):
+        citra_setting = self.settings.read('CITRA_EXEC')
+        if citra_setting is None or not op.exists(citra_setting):
+            self.paths['CITRA_EXEC'] = filedialog.askopenfilename(title="Select the Citra executable.")
+            self.settings.write(self.paths)
+        else:
+            self.paths['CITRA_EXEC'] = citra_setting
+
+        rom_setting = self.settings.read('BUILT_ROM')
+        if rom_setting is None or not op.exists(rom_setting):
+            self.paths['BUILT_ROM'] = filedialog.askopenfilename(title="Select the built ROM file.")
+            self.settings.write(self.paths)
+        else:
+            self.paths['BUILT_ROM'] = rom_setting
+        threading.Thread(target=lambda: subprocess.call('"' + self.paths['CITRA_EXEC'] + '" "' + self.paths['BUILT_ROM'] + '"', shell=True)).start()
 
     def _get_paths(self):
         self.paths['ROMFS_ORIG'] = filedialog.askdirectory(
