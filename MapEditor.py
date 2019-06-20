@@ -52,7 +52,8 @@ class MapEditor(Frame):
         self.dst_tv.bind('<Tab>', self.tab_switch_src)
         self.src_tv.bind('<Tab>', self.tab_switch_dst)
 
-        self.dst_tv.bind('<Control-s>', self.recompile)
+        self.dst_tv.bind('<Control-r>', self.recompile)
+        self.dst_tv.bind('<Control-s>', self.save)
 
         # select the first element in each tree by default for keyboard controls to work on startup
         self.src_tv.focus("I001")
@@ -120,6 +121,17 @@ class MapEditor(Frame):
         for sid in self.dst_tv.selection():
             # TODO: make work...
             pack_map(self.dst_tv.get_filepath(sid))
+
+    def _save(self):
+        selection = op.relpath(self.dst_tv.get_filepath(self.dst_tv.selection()), self.paths['ROMFS_PATCH'])
+        packed_dir = op.dirname(selection)
+        patch_archive = op.join(self.paths['ROMFS_PATCH'], packed_dir, "Archive2.bin.cmp")
+        rom_archive = op.join(self.paths['ROMFS_ORIG'],  packed_dir, "Archive.bin.cmp")
+
+        if not op.exists(patch_archive):
+            patch_archive = op.join(self.paths['ROMFS_PATCH'], selection, "Archive2.bin.cmp")
+
+        shutil.copy(patch_archive, rom_archive)
 
     def _create_widgets(self):
         mainframe = Frame(self)
@@ -216,6 +228,9 @@ class MapEditor(Frame):
 
     def recompile(self, event):
         self._recompile()
+
+    def save(self, event):
+        self._save()
 
     def tab_switch_dst(self, event):
         self.dst_tv.focus_set()
