@@ -25,7 +25,9 @@ class MapEditor(Frame):
 
         self.paths = dict()
         if (self.settings.read('ROMFS_PATCH') is None or
-                self.settings.read('ROMFS_ORIG') is None):
+                self.settings.read('ROMFS_ORIG') is None or
+                not op.exists(self.settings.read('ROMFS_PATCH')) or
+                not op.exists(self.settings.read('ROMFS_ORIG'))):
             self._get_paths()
         else:
             self.paths['ROMFS_ORIG'] = self.settings.read('ROMFS_ORIG')
@@ -56,13 +58,16 @@ class MapEditor(Frame):
         self.dst_tv.bind('<Control-s>', self.save)
 
         # select the first element in each tree by default for keyboard controls to work on startup
-        self.src_tv.focus("I001")
-        self.src_tv.selection_set("I001")
-        self.src_tv.focus_set()
-        self.dst_tv.focus("I001")
-        self.dst_tv.selection_set("I001")
+        if self.src_tv.exists("I001"):
+            self.src_tv.focus("I001")
+            self.src_tv.selection_set("I001")
 
-# region private functions
+        if self.dst_tv.exists("I001"):
+            self.dst_tv.focus("I001")
+            self.dst_tv.selection_set("I001")
+        self.src_tv.focus_set()
+
+    # region private functions
 
     def _check_exit(self):
         self.settings.write(self.paths)
@@ -239,7 +244,6 @@ class MapEditor(Frame):
     def tab_switch_src(self, event):
         self.src_tv.focus_set()
         return 'break'
-
 
 
 if __name__ == '__main__':
