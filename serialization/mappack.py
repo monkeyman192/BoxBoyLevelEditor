@@ -35,58 +35,55 @@ def unpack_map(fname):
         # decompressed file
         fname = op.splitext(fname)[0]
 
-    arcfile = open(fname, 'rb')
-
-    # Read the Magic number/version(?)
-    if arcfile.read(8) != b'XBIN\x34\x12\x02\x00':
-        arcfile.close()
-        raise TypeError('Provided file is not a valid XBIN archive')
-
-    # read the file size:
-    filesize, = struct.unpack('<L', arcfile.read(4))
-    assert filesize == op.getsize(fname)
-
-    # skip some unknown value (should be \xE9\xFD\x00\x00)
-    arcfile.seek(4, 1)
-
-    filenum, = struct.unpack('<L', arcfile.read(4))
-
-    if filenum > 100:
-        # rudementary check; it seems to be really large if the file is the wrong kind of file
-        arcfile.close()
-        raise TypeError("Inputted file is not the right kind of file.")
-
-    # bounds: list of tuples of form: (fname data start, data start)
-    bounds = []
-
-    for _ in range(filenum):
-        bounds.append(struct.unpack('<LL', arcfile.read(8)))
-    # copy the last entry to make the following algorithm easier...
-    bounds.append(bounds[-1])
-
-    for i in range(filenum):
-        # first, get file name...
-        arcfile.seek(bounds[i][0])
-        fname_length, = struct.unpack('<L', arcfile.read(4))
-        fname = struct.unpack('{0}s'.format(fname_length),
-                              arcfile.read(fname_length))[0].decode()
-        # Now, get the data itself.
-        # Just to where the data starts
-        arcfile.seek(bounds[i][1])
-        # we'll just make sure it is XBIN data:
+    with open(fname, "rb") as arcfile:
+        # Read the Magic number/version(?)
         if arcfile.read(8) != b'XBIN\x34\x12\x02\x00':
             raise TypeError('Provided file is not a valid XBIN archive')
-        # read the length of the data:
-        data_length, = struct.unpack('<L', arcfile.read(4))
-        # jump back to the start of the data chunk
-        arcfile.seek(bounds[i][1])
-        # then read the correct amount of data into a new file with the
-        # appropriate name.
-        full_path = op.join(op.dirname(fname), fname)
-        with open(full_path, 'wb') as f:
-            f.write(arcfile.read(data_length))
 
-        return full_path
+        # read the file size:
+        filesize, = struct.unpack('<L', arcfile.read(4))
+        assert filesize == op.getsize(fname)
+
+        # skip some unknown value (should be \xE9\xFD\x00\x00)
+        arcfile.seek(4, 1)
+
+        filenum, = struct.unpack('<L', arcfile.read(4))
+
+        if filenum > 100:
+            # rudementary check; it seems to be really large if the file is the wrong kind of file
+            raise TypeError("Inputted file is not the right kind of file.")
+
+        # bounds: list of tuples of form: (fname data start, data start)
+        bounds = []
+
+        for _ in range(filenum):
+            bounds.append(struct.unpack('<LL', arcfile.read(8)))
+        # copy the last entry to make the following algorithm easier...
+        bounds.append(bounds[-1])
+
+        for i in range(filenum):
+            # first, get file name...
+            arcfile.seek(bounds[i][0])
+            fname_length, = struct.unpack('<L', arcfile.read(4))
+            fname = struct.unpack('{0}s'.format(fname_length),
+                                  arcfile.read(fname_length))[0].decode()
+            # Now, get the data itself.
+            # Just to where the data starts
+            arcfile.seek(bounds[i][1])
+            # we'll just make sure it is XBIN data:
+            if arcfile.read(8) != b'XBIN\x34\x12\x02\x00':
+                raise TypeError('Provided file is not a valid XBIN archive')
+            # read the length of the data:
+            data_length, = struct.unpack('<L', arcfile.read(4))
+            # jump back to the start of the data chunk
+            arcfile.seek(bounds[i][1])
+            # then read the correct amount of data into a new file with the
+            # appropriate name.
+            full_path = op.join(op.dirname(fname), fname)
+            with open(full_path, 'wb') as f:
+                f.write(arcfile.read(data_length))
+
+            return full_path
 
 
 def pack_map(fpath, recompress=True):
